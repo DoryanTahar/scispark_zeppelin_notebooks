@@ -1,0 +1,485 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n#Finding large-scale mesoscale convective complexes (MCSs) in SciSpark\nThis notebook will demonstrate using SciSpark to:\n* read in netCDF files\n* mask areas in an array meeting a criteria \n* connect these areas via overlap between two time steps to form a graph object. \n* Search this graph object to find subgraphs meeting a minimum length criteria\n* Visualization \nThese are all the steps conducted to identify and track mesoscale convective systems (MCSs) as outlined in Whitehall et al. 2014.\n\n![The major steps of the GTG](https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/GTGSteps.png)                          \n               Figure 1: The major steps of the the Grab \u0027em, Tag \u0027em, Graph \u0027em algorithm\n\nFor this demonstration, hourly brightness temperature NCEP/CPC MERG dataset over location 5S - 40N, 60E - 90W is used. More information about the NCEP/CPC 4km MERG Dataset used for this demonstration can be found  [here] (http://mirador.gsfc.nasa.gov/collections/MERG__001.shtml).\n\u003cbr\u003e\n\n \n####Useful references\n* Goyens, C., Lauwaet, D., Schröder, M., Demuzere, M. and Van Lipzig, N.P., 2012. Tracking mesoscale convective systems in the Sahel: relation between cloud parameters and precipitation. International Journal of Climatology, 32(12), pp.1921-1934.\n\n* Palamuttam, R., R. Marroquín Mogrovejo, C. Mattmann, B. Wilson, K. Whitehall, R. Verma, L. McGibbney, and P. Ramirez, 2015. SciSpark: Applying In-memory Distributed Computing to Weather Event Detection and Tracking. In 2015 IEEE International Conference on Big Data (Big Data) on, pp. 1959 - 1965.\n\n* Whitehall, K., C. Mattmann, G. Jenkins, M. Rwebangira, B. Demoz, D.  Waliser, J. Kim, C. Goodale, A. Hart, P. Ramirez, M. Joyce, M. Boustani, P. Zimdars, P. Loikith, and H. Lee, 2014. Exploring a graph theory based algorithm for automated identification and characterization of large mesoscale convective systems in satellite datasets. Earth Science Informatics. DOI: 10.1007/s12145-014-0181-3\n\nNote that in the nomenclature used in this notebook, a *frame* indicates the date and time associated with a netCDF file.\n",
+      "dateUpdated": "Feb 9, 2017 12:53:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595680_-1221991049",
+      "id": "20170125-075136_365395608",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\u003ch1\u003eFinding large-scale mesoscale convective complexes (MCSs) in SciSpark\u003c/h1\u003e\n\u003cp\u003eThis notebook will demonstrate using SciSpark to:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eread in netCDF files\u003c/li\u003e\n\u003cli\u003emask areas in an array meeting a criteria\u003c/li\u003e\n\u003cli\u003econnect these areas via overlap between two time steps to form a graph object.\u003c/li\u003e\n\u003cli\u003eSearch this graph object to find subgraphs meeting a minimum length criteria\u003c/li\u003e\n\u003cli\u003eVisualization\n\u003cbr  /\u003eThese are all the steps conducted to identify and track mesoscale convective systems (MCSs) as outlined in Whitehall et al. 2014.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e\u003cimg src\u003d\"https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/GTGSteps.png\" alt\u003d\"The major steps of the GTG\" /\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003e           Figure 1: The major steps of the the Grab \u0027em, Tag \u0027em, Graph \u0027em algorithm\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eFor this demonstration, hourly brightness temperature NCEP/CPC MERG dataset over location 5S - 40N, 60E - 90W is used. More information about the NCEP/CPC 4km MERG Dataset used for this demonstration can be found  \u003ca href\u003d\"http://mirador.gsfc.nasa.gov/collections/MERG__001.shtml\"\u003ehere\u003c/a\u003e.\n\u003cbr  /\u003e\u003cbr\u003e\u003c/p\u003e\n\u003ch4\u003eUseful references\u003c/h4\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cp\u003eGoyens, C., Lauwaet, D., Schröder, M., Demuzere, M. and Van Lipzig, N.P., 2012. Tracking mesoscale convective systems in the Sahel: relation between cloud parameters and precipitation. International Journal of Climatology, 32(12), pp.1921-1934.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003ePalamuttam, R., R. Marroquín Mogrovejo, C. Mattmann, B. Wilson, K. Whitehall, R. Verma, L. McGibbney, and P. Ramirez, 2015. SciSpark: Applying In-memory Distributed Computing to Weather Event Detection and Tracking. In 2015 IEEE International Conference on Big Data (Big Data) on, pp. 1959 - 1965.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eWhitehall, K., C. Mattmann, G. Jenkins, M. Rwebangira, B. Demoz, D.  Waliser, J. Kim, C. Goodale, A. Hart, P. Ramirez, M. Joyce, M. Boustani, P. Zimdars, P. Loikith, and H. Lee, 2014. Exploring a graph theory based algorithm for automated identification and characterization of large mesoscale convective systems in satellite datasets. Earth Science Informatics. DOI: 10.1007/s12145-014-0181-3\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eNote that in the nomenclature used in this notebook, a \u003cem\u003eframe\u003c/em\u003e indicates the date and time associated with a netCDF file.\u003c/p\u003e\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Import libs",
+      "text": "import org.dia.algorithms.mcs._\nimport org.dia.core.{SciDataset, SciSparkContext, SRDDFunctions}\nimport org.dia.tensors.AbstractTensor\nimport org.dia.utils.{FileUtils, WWLLNUtils}\n\nimport scala.collection.mutable\n",
+      "dateUpdated": "Feb 9, 2017 1:02:24 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595680_-1221991049",
+      "id": "20170125-075713_296565184",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nimport org.dia.algorithms.mcs._\n\nimport org.dia.core.{SciDataset, SciSparkContext, SRDDFunctions}\n\nimport org.dia.tensors.AbstractTensor\n\nimport org.dia.utils.{FileUtils, WWLLNUtils}\n\nimport scala.collection.mutable\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:02:24 PM",
+      "dateFinished": "Feb 9, 2017 1:02:25 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Initialize The SciSpark Context",
+      "text": "val ssc \u003d new SciSparkContext(sc)",
+      "dateUpdated": "Feb 9, 2017 1:02:32 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595680_-1221991049",
+      "id": "20170209-123215_428470849",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nssc: org.dia.core.SciSparkContext \u003d org.dia.core.SciSparkContext@44b1bb0\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:02:32 PM",
+      "dateFinished": "Feb 9, 2017 1:02:33 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Load the data and set up environment",
+      "text": "val partCount \u003d 4\nval varNames \u003d  List(\"ch4\", \"longitude\", \"latitude\")\nval variableName \u003d \"ch4\"\nval hdfspath \u003d \"hdfs://my-cluster:8020/data/MERGdata/\" \nval hdfsOutputDir \u003d \"hdfs://my-cluster:8020/user/zeppelin/output\"\nval outputLoc \u003d \"output\"\nval WWLLNpath \u003d \"hdfs://my-cluster/data/WWLLN/\"\n\n/** Criteria for MCS **/\nval maxAreaOverlapThreshold \u003d 0.65\nval minAreaOverlapThreshold \u003d 0.50\nval outerTemp \u003d 241.0\nval innerTemp \u003d 233.0\nval convectiveFraction \u003d 0.9\nval minArea \u003d 625\nval nodeMinArea \u003d 150\nval minAreaThres \u003d 16\nval minGraphLength \u003d 4\n\n/** Criteria for MCC */\nval minFeatureLength \u003d 5\nval maxFeatureLEngth \u003d 24\nval areaCriteriaA \u003d 30000/16\nval b \u003d 80000/16\nval tempA \u003d 213.0f\nval tempB \u003d 233.0f\n\nval outputDir \u003d FileUtils.checkHDFSWrite(hdfsOutputDir)\nval broadcastedWWLLNDF \u003d ssc.readWWLLNData(WWLLNpath, partCount)\n\nval sRDD \u003d ssc.sciDatasets(hdfspath, varNames, partCount)",
+      "dateUpdated": "Feb 9, 2017 1:02:35 PM",
+      "config": {
+        "tableHide": true,
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595680_-1221991049",
+      "id": "20170125-075850_811395083",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\npartCount: Int \u003d 4\n\nvarNames: List[String] \u003d List(ch4, longitude, latitude)\n\nvariableName: String \u003d ch4\n\nhdfspath: String \u003d hdfs://my-cluster:8020/data/paperMERG/\n\nhdfsOutputDir: String \u003d hdfs://my-cluster:8020/user/zeppelin/output\n\noutputLoc: String \u003d output\n\n\n\n\n\n\n\n\n\n\nWWLLNpath: String \u003d hdfs://my-cluster/data/WWLLN/\nmaxAreaOverlapThreshold: Double \u003d 0.65\nminAreaOverlapThreshold: Double \u003d 0.5\nouterTemp: Double \u003d 241.0\ninnerTemp: Double \u003d 233.0\nconvectiveFraction: Double \u003d 0.9\nminArea: Int \u003d 625\nnodeMinArea: Int \u003d 150\nminAreaThres: Int \u003d 16\nminGraphLength: Int \u003d 4\n\nminFeatureLength: Int \u003d 5\n\nmaxFeatureLEngth: Int \u003d 24\n\nareaCriteriaA: Int \u003d 1875\n\nb: Int \u003d 5000\n\ntempA: Float \u003d 213.0\n\ntempB: Float \u003d 233.0\n\noutputDir: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486674158169\n\nbroadcastedWWLLNDF: org.apache.spark.broadcast.Broadcast[org.apache.spark.sql.DataFrame] \u003d Broadcast(1)\n\nsRDD: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[7] at map at SciSparkContext.scala:232\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:02:35 PM",
+      "dateFinished": "Feb 9, 2017 1:02:41 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Add MetaData To The SciDataset",
+      "text": "val sampleDataset \u003d sRDD.take(1)(0)\nval lon \u003d sampleDataset(\"longitude\").data()\nval lat \u003d sampleDataset(\"latitude\").data()\n\nval labeled \u003d MCSOps.recordFrameNumber(sRDD, variableName)",
+      "dateUpdated": "Feb 9, 2017 1:02:45 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595681_-1222375798",
+      "id": "20170209-123336_69320433",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\n\n\n\n\n\n\n\n\n\n\n\n\n\nsampleDataset: org.dia.core.SciDataset \u003d\nmerg_2006091100_4km-pixel.nc\nroot group ...\n\tConventions: COARDS\n\tnco_openmp_thread_number: 1\n\tmodel: geos/das\n\tcenter: gsfc\n\tcomments: File\n\tNCO: \"4.5.2\"\n\tcalendar: standard\n\t_CoordSysBuilder: ucar.nc2.dataset.conv.COARDSConvention\n\thistory: Tue Aug 16 13:58:00 2016: ncea -d latitude,12.0,17.0 -d longitude,-8.0,8.0 merg_2006091100_4km-pixel.nc paperSize/merg_2006091100_4km-pixel.nc\n\tdimensions(sizes): (latitude(137), longitude(440), time(1))\n\tvariables: (double latitude(latitude), double longitude(longitude), float ch4(time, latitude, longitude))\nlon: Array[Double] \u003d Array(-7.9850335121154785, -7.948655128479004, -7.9122772216796875, -7.875898838043213, -7.839520454406738, -7.803142070770264, -7.766763687133789, -7.7303853034973145, -7.69400691986084, -7.657628536224365, -7.621250152587891, -7.584872245788574, -7.5484938621521, -7.512115478515625, -7.47573709487915, -7.439358711242676, -7.402980327606201, -7.366601943969727, -7.330223560333252, -7.293845176696777, -7.257466793060303, -7.221088886260986, -7.184710502624512, -7.148332118988037, -7.1119537353515625, -7.075575351715088, -7.039196968078613, -7.002818584442139, -6.966440200805664, -6.9300618171691895, -6.893683433532715, -6.857305526733398, -6.820927143096924, -6.784548759460449, -6.748170375823975, -6.7117919921875, -6.675413608551025, -6.639035224914551, -6.60265684...lat: Array[Double] \u003d Array(12.021308898925781, 12.057692527770996, 12.094076156616211, 12.130459785461426, 12.16684341430664, 12.203227043151855, 12.23961067199707, 12.275994300842285, 12.3123779296875, 12.348761558532715, 12.38514518737793, 12.421528816223145, 12.45791244506836, 12.494296073913574, 12.530680656433105, 12.56706428527832, 12.603447914123535, 12.63983154296875, 12.676215171813965, 12.71259880065918, 12.748982429504395, 12.78536605834961, 12.821749687194824, 12.858133316040039, 12.894516944885254, 12.930900573730469, 12.967284202575684, 13.003667831420898, 13.040051460266113, 13.076435089111328, 13.112818717956543, 13.149203300476074, 13.185586929321289, 13.221970558166504, 13.258354187011719, 13.294737815856934, 13.331121444702148, 13.367505073547363, 13.403888702392578, ...\nlabeled: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[8] at map at MCSOps.scala:566\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:02:45 PM",
+      "dateFinished": "Feb 9, 2017 1:02:58 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## Find cloud elements and connect the cloud elements between frames\n*Cloud elements* are defined as contiguous regions where the temperature is atleast 241.0K and an area is met. 241K is a reasonable brightness temperature threshold for deep convection in detection in the Tropics (Machado et al. 1998).\n\nIn order to observe features are forming over time, it is necessary to connect *cloud elements* between *frames*. The connection, referred to as an *edge*, is created between *cloud elements* of consecutive *frames* if: \n* the area between consecutive frames is \u003e\u003d 2400.00 squared_km\nOR\n* the area between consecutive frames is \u003c 2400.00 squared_km and the convective fraction is \u003c 0.9. The convective fraction is defined as the ratio of minimum to maximum brightness temperature\n\n![Finding cloud elements](https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/sRDDtimeSeq.png)                          \n               Figure 2: Illustration of how the cloud elements and edges are determined\n\nThis algorithm was originally developed for use in West Africa. As such, this criteria follows discussions in the literature about the microphysical characterization of MCS features in the area of interest and previous temperature threshold implementations (Bouniol et al. 2010, Machado et al. 1993, Mapes and Houze 1993, Goyens et al. 2011)\n\nAt the end of this step, a sparely connected graph representing the  cloud elements found and their connectivity through out the user defined datasets. \n\nNotice the **sciTensor** is being passed around and manipulated.",
+      "dateUpdated": "Feb 9, 2017 12:53:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "editorHide": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595681_-1222375798",
+      "id": "20170209-123518_317944211",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\u003ch2\u003eFind cloud elements and connect the cloud elements between frames\u003c/h2\u003e\n\u003cp\u003e\u003cem\u003eCloud elements\u003c/em\u003e are defined as contiguous regions where the temperature is atleast 241.0K and an area is met. 241K is a reasonable brightness temperature threshold for deep convection in detection in the Tropics (Machado et al. 1998).\u003c/p\u003e\n\u003cp\u003eIn order to observe features are forming over time, it is necessary to connect \u003cem\u003ecloud elements\u003c/em\u003e between \u003cem\u003eframes\u003c/em\u003e. The connection, referred to as an \u003cem\u003eedge\u003c/em\u003e, is created between \u003cem\u003ecloud elements\u003c/em\u003e of consecutive \u003cem\u003eframes\u003c/em\u003e if:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ethe area between consecutive frames is \u003e\u003d 2400.00 squared_km\n\u003cbr  /\u003eOR\u003c/li\u003e\n\u003cli\u003ethe area between consecutive frames is \u0026lt; 2400.00 squared_km and the convective fraction is \u0026lt; 0.9. The convective fraction is defined as the ratio of minimum to maximum brightness temperature\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e\u003cimg src\u003d\"https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/sRDDtimeSeq.png\" alt\u003d\"Finding cloud elements\" /\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003e           Figure 2: Illustration of how the cloud elements and edges are determined\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eThis algorithm was originally developed for use in West Africa. As such, this criteria follows discussions in the literature about the microphysical characterization of MCS features in the area of interest and previous temperature threshold implementations (Bouniol et al. 2010, Machado et al. 1993, Mapes and Houze 1993, Goyens et al. 2011)\u003c/p\u003e\n\u003cp\u003eAt the end of this step, a sparely connected graph representing the  cloud elements found and their connectivity through out the user defined datasets.\u003c/p\u003e\n\u003cp\u003eNotice the \u003cstrong\u003esciTensor\u003c/strong\u003e is being passed around and manipulated.\u003c/p\u003e\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Maintain The Time Series In The Parallel Environment",
+      "text": "val filtered \u003d labeled.map(p \u003d\u003e p(variableName) \u003d p(variableName) \u003c\u003d 241.0)\nval consecFrames \u003d SRDDFunctions.fromRDD(filtered).pairConsecutiveFrames(\"FRAME\")\n",
+      "dateUpdated": "Feb 9, 2017 1:03:02 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595682_-1221221551",
+      "id": "20170209-123846_340437503",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nfiltered: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[9] at map at \u003cconsole\u003e:48\n\nconsecFrames: org.apache.spark.rdd.RDD[(org.dia.core.SciDataset, org.dia.core.SciDataset)] \u003d MapPartitionsRDD[20] at map at SRDDFunctions.scala:209\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:03:03 PM",
+      "dateFinished": "Feb 9, 2017 1:03:30 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Connect The Cloud Elements And Store Metadata On Each Node",
+      "text": "val edgeListRDD \u003d MCSOps.findEdges(consecFrames, variableName, maxAreaOverlapThreshold, minAreaOverlapThreshold, convectiveFraction, minArea, nodeMinArea, minAreaThres)\n\nedgeListRDD.cache()\nedgeListRDD.localCheckpoint()\n\nval MCSEdgeList \u003d edgeListRDD.collect()\nval MCSNodeMap \u003d MCSOps.createNodeMapFromEdgeList(MCSEdgeList, lat, lon)\nval broadcastedNodeMap \u003d ssc.sparkContext.broadcast(MCSNodeMap)",
+      "dateUpdated": "Feb 9, 2017 1:03:38 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595682_-1221221551",
+      "id": "20170209-123951_1907054657",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nedgeListRDD: org.apache.spark.rdd.RDD[org.dia.algorithms.mcs.MCSEdge] \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\n\nres5: edgeListRDD.type \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\n\nres6: edgeListRDD.type \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\nMCSEdgeList: Array[org.dia.algorithms.mcs.MCSEdge] \u003d Array(((2006091115:6), (2006091116:4)), ((2006091115:10), (2006091116:4)), ((2006091115:9), (2006091116:12)), ((2006091115:11), (2006091116:4)), ((2006091207:6), (2006091208:7)), ((2006091211:3), (2006091212:3)), ((2006091211:6), (2006091212:5)), ((2006091123:40), (2006091200:57)), ((2006091123:10), (2006091200:10)), ((2006091111:13), (2006091112:13)), ((2006091111:12), (2006091112:12)), ((2006091111:8), (2006091112:11)), ((2006091119:14), (2006091120:4)), ((2006091119:15), (2006091120:4)), ((2006091119:2), (2006091120:5)), ((2006091119:7), (2006091120:8)), ((2006091119:2), (2006091120:4)), ((2006091112:13), (2006091113:9)), ((2006091112:11), (2006091113:9)), ((2006091112:15), (2006091113:17)), ((2006091112:16), (2006091113:19)), ((20...MCSNodeMap: scala.collection.mutable.HashMap[String,org.dia.algorithms.mcs.MCSNode] \u003d Map(2006091206:9 -\u003e {\"frameNum\":2006091206,\"cloudElemNum\":9.0,\"metadata\":{},\"grid\":{\"(11, 309)\":219.0,\"(10, 320)\":239.0,\"(4, 321)\":221.0,\"(12, 300)\":231.0,\"(6, 301)\":218.0,\"(21, 324)\":229.0,\"(8, 305)\":223.0,\"(3, 306)\":231.0,\"(11, 310)\":215.0,\"(17, 325)\":236.0,\"(13, 302)\":240.0,\"(2, 293)\":212.0,\"(10, 307)\":219.0,\"(3, 318)\":235.0,\"(2, 316)\":228.0,\"(7, 303)\":222.0,\"(16, 323)\":239.0,\"(16, 308)\":227.0,\"(1, 291)\":218.0,\"(13, 314)\":231.0,\"(7, 294)\":236.0,\"(10, 319)\":235.0,\"(0, 312)\":233.0,\"(29, 332)\":238.0,\"(20, 322)\":228.0,\"(20, 310)\":238.0,\"(22, 326)\":227.0,\"(14, 304)\":224.0,\"(28, 330)\":236.0,\"(1, 314)\":228.0,\"(15, 306)\":230.0,\"(9, 307)\":221.0,\"(9, 298)\":237.0,\"(12, 312)\":221.0,\"(5, 316)\":235.0,\"(2, 298)\":2...\nbroadcastedNodeMap: org.apache.spark.broadcast.Broadcast[scala.collection.mutable.HashMap[String,org.dia.algorithms.mcs.MCSNode]] \u003d Broadcast(8)\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:03:38 PM",
+      "dateFinished": "Feb 9, 2017 1:03:53 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Add Lightning data and write netCDFs",
+      "text": "MCSEdgeList.foreach(edge \u003d\u003e {\n    val (srcMCSNode, dstMCSNode) \u003d MCSUtils.getMCSNodes(edge, MCSNodeMap)\n    MCSOps.updateLightningWWLLN(srcMCSNode, broadcastedWWLLNDF)\n    MCSOps.updateLightningWWLLN(dstMCSNode, broadcastedWWLLNDF)\n    MCSUtils.writeEdgeNodesToNetCDF(edge, broadcastedNodeMap, lat, lon, false, \"/tmp\", null)\n})\n\nprintln(\"NUM VERTICES : \" + MCSNodeMap.size + \"\\n\")\nprintln(\"NUM EDGES : \" + MCSEdgeList.size + \"\\n\")\n\nval MCSNodeFilename: String \u003d outputDir + System.getProperty(\"file.separator\") + \"MCSNodes.json\"\n\nval MCSEdgeFilename: String \u003d outputDir + System.getProperty(\"file.separator\") + \"MCSEdges.txt\"\n",
+      "dateUpdated": "Feb 9, 2017 1:04:13 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595682_-1221221551",
+      "id": "20170125-081022_21435731",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "NUM VERTICES : 75\n\nNUM EDGES : 66\n\n\nMCSNodeFilename: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486674158169/MCSNodes.json\n\nMCSEdgeFilename: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486674158169/MCSEdges.txt\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:04:13 PM",
+      "dateFinished": "Feb 9, 2017 1:06:17 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Find subgraphs",
+      "text": "val edgeListRDDIndexed \u003d MCSOps.createPartitionIndex(edgeListRDD)\nval count \u003d edgeListRDDIndexed.count.toInt\nval buckets \u003d 4\nval maxParitionSize \u003d count / buckets\nval subgraphs \u003d edgeListRDDIndexed\n  .map(MCSOps.mapEdgesToBuckets(_, maxParitionSize, buckets))\n  .groupByKey()\nval subgraphsFound \u003d MCSOps.findSubgraphsIteratively(subgraphs, 1, maxParitionSize, minGraphLength, outputDir)\n",
+      "dateUpdated": "Feb 9, 2017 1:06:29 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595683_-1221606300",
+      "id": "20170125-081159_941449875",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nedgeListRDDIndexed: org.apache.spark.rdd.RDD[org.dia.algorithms.mcs.MCSEdge] \u003d MapPartitionsRDD[691] at flatMap at MCSOps.scala:326\n\ncount: Int \u003d 66\n\nbuckets: Int \u003d 4\n\nmaxParitionSize: Int \u003d 16\n\nsubgraphs: org.apache.spark.rdd.RDD[(Int, Iterable[org.dia.algorithms.mcs.MCSEdge])] \u003d ShuffledRDD[693] at groupByKey at \u003cconsole\u003e:71\n\nsubgraphsFound: Array[(Int, Iterable[org.dia.algorithms.mcs.MCSEdge])] \u003d Array((1,MutableList()))\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:06:29 PM",
+      "dateFinished": "Feb 9, 2017 1:06:34 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Find nodes that meet the MCC criteria",
+      "text": "/** find potential nodes from the subgraphs set according to */\nval potentialNodes \u003d ssc.sparkContext.parallelize(MCSNodeMap.values.toSeq)\n  .map(MCCOps.isPotentialNode(_, areaCriteriaA, b, tempA, tempB))\n  .filter(x \u003d\u003e x._1)\n  .groupByKey()\n  .collect()\n\nval potentialNodeSet \u003d new mutable.HashSet[String]()\n  for ((isCriteria, nodes) \u003c- potentialNodes) {\n    if (isCriteria) {\n      potentialNodeSet ++\u003d nodes\n    }\n  }\n\nval broadcastPotentialNodes \u003d ssc.sparkContext.broadcast(potentialNodeSet)\nval subgraphsPath \u003d outputDir + System.getProperty(\"file.separator\") + \"subgraphs-*\"\nval subgraphsRDD \u003d MCCOps.loadSubgraphsFromFile(subgraphsPath, ssc.sparkContext)\n",
+      "dateUpdated": "Feb 9, 2017 1:07:36 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673759581_1263900599",
+      "id": "20170209-125559_237272744",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\npotentialNodes: Array[(Boolean, Iterable[String])] \u003d Array((true,CompactBuffer(2006091118:4, 2006091119:2, 2006091115:6, 2006091116:4, 2006091117:4)))\n\npotentialNodeSet: scala.collection.mutable.HashSet[String] \u003d Set()\n\nbroadcastPotentialNodes: org.apache.spark.broadcast.Broadcast[scala.collection.mutable.HashSet[String]] \u003d Broadcast(153)\n\nsubgraphsPath: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486674158169/subgraphs-*\n\nsubgraphsRDD: org.apache.spark.rdd.RDD[scala.collection.mutable.MutableList[(String, String)]] \u003d MapPartitionsRDD[704] at map at MCCOps.scala:224\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:55:59 PM",
+      "dateStarted": "Feb 9, 2017 1:07:36 PM",
+      "dateFinished": "Feb 9, 2017 1:07:44 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Find MCCs",
+      "text": "val MCCs \u003d subgraphsRDD.map(MCCOps.findMCC(_, minFeatureLength, maxFeatureLEngth, broadcastPotentialNodes))\n  .reduce((x, y) \u003d\u003e x ++ y)\n\n/** Merge all paths if they have common nodes */\nval MCCFilePath \u003d outputDir + System.getProperty(\"file.separator\") + \"MCCPaths.txt\"\n\nFileUtils.writeIterableToHDFS(MCCFilePath, MCCs)\n\nprintln(edgeListRDD.toDebugString + \"\\n\")\n",
+      "dateUpdated": "Feb 9, 2017 1:11:11 PM",
+      "config": {
+        "colWidth": 12.0,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486673595686_-1222760547",
+      "id": "20170209-123023_1343993141",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "(4) MapPartitionsRDD[21] at flatMap at MCSOps.scala:360 [Disk Memory Deserialized 1x Replicated]\n |       CachedPartitions: 4; MemorySize: 25.7 MB; ExternalBlockStoreSize: 0.0 B; DiskSize: 0.0 B\n |  LocalCheckpointRDD[22] at collect at \u003cconsole\u003e:61 [Disk Memory Deserialized 1x Replicated]\n\n\n\nMCCs: scala.collection.mutable.MutableList[scala.collection.mutable.HashSet[String]] \u003d MutableList(Set(2006091119:2, 2006091117:4, 2006091115:6, 2006091116:4, 2006091118:4))\nMCCFilePath: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486674158169/MCCPaths.txt\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:53:15 PM",
+      "dateStarted": "Feb 9, 2017 1:07:49 PM",
+      "dateFinished": "Feb 9, 2017 1:07:51 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "",
+      "dateUpdated": "Feb 9, 2017 1:08:00 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486674469665_1882399518",
+      "id": "20170209-130749_181053175",
+      "dateCreated": "Feb 9, 2017 1:07:49 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "/whitehal/completed/MCC",
+  "id": "2CAMBATTT",
+  "angularObjects": {
+    "2BVURA85U:shared_process": [],
+    "2BU2MNEMG:shared_process": [],
+    "2BU9P6JH6:shared_process": [],
+    "2BT8TG21U:shared_process": [],
+    "2BUXT3NC5:shared_process": [],
+    "2BTZM67CR:shared_process": [],
+    "2BTN87W53:shared_process": [],
+    "2BUCZMUX7:shared_process": [],
+    "2BUSBW3MB:shared_process": [],
+    "2BUXWV6HB:shared_process": [],
+    "2BT9TFHBF:shared_process": [],
+    "2BU936JFK:shared_process": [],
+    "2BTFV92B8:shared_process": [],
+    "2BT3ZFUU9:shared_process": [],
+    "2BW6TQVCA:shared_process": [],
+    "2BUFFDS2F:shared_process": [],
+    "2BUDKPFK6:shared_process": [],
+    "2BVQCFMYJ:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}

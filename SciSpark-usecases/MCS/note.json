@@ -1,0 +1,833 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n#Finding large-scale mesoscale convective systems (MCSs) in SciSpark\nThis notebook will demonstrate using SciSpark to:\n* read in netCDF files\n* mask areas in an array meeting a criteria \n* connect these areas via overlap between two time steps to form a graph object. \n* Search this graph object to find subgraphs meeting a minimum length criteria\n* Visualization \nThese are all the steps conducted to identify and track mesoscale convective systems (MCSs) as outlined in Whitehall et al. 2014.\n\n![The major steps of the GTG](https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/GTGSteps.png)                          \n               Figure 1: The major steps of the the Grab \u0027em, Tag \u0027em, Graph \u0027em algorithm\n\nFor this demonstration, hourly brightness temperature NCEP/CPC MERG dataset over location 5S - 40N, 60E - 90W is used. More information about the NCEP/CPC 4km MERG Dataset used for this demonstration can be found  [here] (http://mirador.gsfc.nasa.gov/collections/MERG__001.shtml).\n\u003cbr\u003e\n\n \n####Useful references\n* Goyens, C., Lauwaet, D., Schröder, M., Demuzere, M. and Van Lipzig, N.P., 2012. Tracking mesoscale convective systems in the Sahel: relation between cloud parameters and precipitation. International Journal of Climatology, 32(12), pp.1921-1934.\n\n* Palamuttam, R., R. Marroquín Mogrovejo, C. Mattmann, B. Wilson, K. Whitehall, R. Verma, L. McGibbney, and P. Ramirez, 2015. SciSpark: Applying In-memory Distributed Computing to Weather Event Detection and Tracking. In 2015 IEEE International Conference on Big Data (Big Data) on, pp. 1959 - 1965.\n\n* Whitehall, K., C. Mattmann, G. Jenkins, M. Rwebangira, B. Demoz, D.  Waliser, J. Kim, C. Goodale, A. Hart, P. Ramirez, M. Joyce, M. Boustani, P. Zimdars, P. Loikith, and H. Lee, 2014. Exploring a graph theory based algorithm for automated identification and characterization of large mesoscale convective systems in satellite datasets. Earth Science Informatics. DOI: 10.1007/s12145-014-0181-3\n\nNote that in the nomenclature used in this notebook, a *frame* indicates the date and time associated with a netCDF file.\n",
+      "dateUpdated": "Feb 9, 2017 12:46:24 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485359496673_-16128512",
+      "id": "20170125-075136_365395608",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\u003ch1\u003eFinding large-scale mesoscale convective systems (MCSs) in SciSpark\u003c/h1\u003e\n\u003cp\u003eThis notebook will demonstrate using SciSpark to:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003eread in netCDF files\u003c/li\u003e\n\u003cli\u003emask areas in an array meeting a criteria\u003c/li\u003e\n\u003cli\u003econnect these areas via overlap between two time steps to form a graph object.\u003c/li\u003e\n\u003cli\u003eSearch this graph object to find subgraphs meeting a minimum length criteria\u003c/li\u003e\n\u003cli\u003eVisualization\n\u003cbr  /\u003eThese are all the steps conducted to identify and track mesoscale convective systems (MCSs) as outlined in Whitehall et al. 2014.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e\u003cimg src\u003d\"https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/GTGSteps.png\" alt\u003d\"The major steps of the GTG\" /\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003e           Figure 1: The major steps of the the Grab \u0027em, Tag \u0027em, Graph \u0027em algorithm\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eFor this demonstration, hourly brightness temperature NCEP/CPC MERG dataset over location 5S - 40N, 60E - 90W is used. More information about the NCEP/CPC 4km MERG Dataset used for this demonstration can be found  \u003ca href\u003d\"http://mirador.gsfc.nasa.gov/collections/MERG__001.shtml\"\u003ehere\u003c/a\u003e.\n\u003cbr  /\u003e\u003cbr\u003e\u003c/p\u003e\n\u003ch4\u003eUseful references\u003c/h4\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cp\u003eGoyens, C., Lauwaet, D., Schröder, M., Demuzere, M. and Van Lipzig, N.P., 2012. Tracking mesoscale convective systems in the Sahel: relation between cloud parameters and precipitation. International Journal of Climatology, 32(12), pp.1921-1934.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003ePalamuttam, R., R. Marroquín Mogrovejo, C. Mattmann, B. Wilson, K. Whitehall, R. Verma, L. McGibbney, and P. Ramirez, 2015. SciSpark: Applying In-memory Distributed Computing to Weather Event Detection and Tracking. In 2015 IEEE International Conference on Big Data (Big Data) on, pp. 1959 - 1965.\u003c/p\u003e\n\u003c/li\u003e\n\u003cli\u003e\u003cp\u003eWhitehall, K., C. Mattmann, G. Jenkins, M. Rwebangira, B. Demoz, D.  Waliser, J. Kim, C. Goodale, A. Hart, P. Ramirez, M. Joyce, M. Boustani, P. Zimdars, P. Loikith, and H. Lee, 2014. Exploring a graph theory based algorithm for automated identification and characterization of large mesoscale convective systems in satellite datasets. Earth Science Informatics. DOI: 10.1007/s12145-014-0181-3\u003c/p\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eNote that in the nomenclature used in this notebook, a \u003cem\u003eframe\u003c/em\u003e indicates the date and time associated with a netCDF file.\u003c/p\u003e\n"
+      },
+      "dateCreated": "Jan 25, 2017 7:51:36 AM",
+      "dateStarted": "Feb 9, 2017 12:45:29 PM",
+      "dateFinished": "Feb 9, 2017 12:45:29 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sh\nrm /tmp/*.nc\nrm -r /tmp/pngs/*",
+      "dateUpdated": "Feb 9, 2017 12:32:02 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672300046_1468347881",
+      "id": "20170209-123140_810786911",
+      "dateCreated": "Feb 9, 2017 12:31:40 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Import libs",
+      "text": "import org.dia.algorithms.mcs._\nimport org.dia.core.{SciDataset, SciSparkContext, SRDDFunctions}\nimport org.dia.tensors.AbstractTensor\nimport org.dia.utils.{FileUtils, WWLLNUtils}\n\nimport scala.collection.mutable\n",
+      "dateUpdated": "Feb 7, 2017 6:39:08 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485359833845_1818226717",
+      "id": "20170125-075713_296565184",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nimport org.dia.algorithms.mcs._\n\nimport org.dia.core.{SciDataset, SciSparkContext, SRDDFunctions}\n\nimport org.dia.tensors.AbstractTensor\n\nimport org.dia.utils.{FileUtils, WWLLNUtils}\n\nimport scala.collection.mutable\n"
+      },
+      "dateCreated": "Jan 25, 2017 7:57:13 AM",
+      "dateStarted": "Feb 7, 2017 6:39:08 AM",
+      "dateFinished": "Feb 7, 2017 6:39:22 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Initialize The SciSpark Context",
+      "text": "val ssc \u003d new SciSparkContext(sc)",
+      "dateUpdated": "Feb 9, 2017 12:33:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672335172_-1685023456",
+      "id": "20170209-123215_428470849",
+      "dateCreated": "Feb 9, 2017 12:32:15 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Load the data and set up environment",
+      "text": "val partCount \u003d 4\nval varNames \u003d  List(\"ch4\", \"longitude\", \"latitude\")\nval variableName \u003d \"ch4\"\nval hdfspath \u003d \"hdfs://my-cluster:8020/data/MERGdata/\" \nval hdfsOutputDir \u003d \"hdfs://my-cluster:8020/user/zeppelin/output\"\nval outputLoc \u003d \"output\"\nval WWLLNpath \u003d \"hdfs://my-cluster/data/WWLLN/\"\n\nval maxAreaOverlapThreshold \u003d 0.65\nval minAreaOverlapThreshold \u003d 0.50\nval outerTemp \u003d 241.0\nval innerTemp \u003d 233.0\nval convectiveFraction \u003d 0.9\nval minArea \u003d 625\nval nodeMinArea \u003d 150\nval minAreaThres \u003d 16\nval minGraphLength \u003d 4\n\nval outputDir \u003d FileUtils.checkHDFSWrite(hdfsOutputDir)\nval broadcastedWWLLNDF \u003d ssc.readWWLLNData(WWLLNpath, partCount)\n\nval sRDD \u003d ssc.sciDatasets(hdfspath, varNames, partCount)",
+      "dateUpdated": "Feb 9, 2017 12:40:21 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "tableHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485359930568_-1725387274",
+      "id": "20170125-075850_811395083",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\npartCount: Int \u003d 4\n\nvarNames: List[String] \u003d List(ch4, longitude, latitude)\n\nvariableName: String \u003d ch4\n\nhdfspath: String \u003d hdfs://my-cluster:8020/data/MERGdata/\n\nhdfsOutputDir: String \u003d hdfs://my-cluster:8020/user/zeppelin/output\n\noutputLoc: String \u003d output\n\nWWLLNpath: String \u003d hdfs://my-cluster/data/WWLLN/\n\nmaxAreaOverlapThreshold: Double \u003d 0.65\n\nminAreaOverlapThreshold: Double \u003d 0.5\n\nouterTemp: Double \u003d 241.0\n\ninnerTemp: Double \u003d 233.0\n\nconvectiveFraction: Double \u003d 0.9\n\nminArea: Int \u003d 625\n\nnodeMinArea: Int \u003d 150\n\nminAreaThres: Int \u003d 16\n\nminGraphLength: Int \u003d 4\n\nssc: org.dia.core.SciSparkContext \u003d org.dia.core.SciSparkContext@5999cc77\n\noutputDir: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486478368996\n\nbroadcastedWWLLNDF: org.apache.spark.broadcast.Broadcast[org.apache.spark.sql.DataFrame] \u003d Broadcast(1)\n\nsRDD: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[7] at map at SciSparkContext.scala:232\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsampleDataset: org.dia.core.SciDataset \u003d\nmerg_2006091100_4km-pixel.nc\nroot group ...\n\tConventions: COARDS\n\tnco_openmp_thread_number: 1\n\tmodel: geos/das\n\tcenter: gsfc\n\tcomments: File\n\tNCO: \"4.5.2\"\n\tcalendar: standard\n\t_CoordSysBuilder: ucar.nc2.dataset.conv.COARDSConvention\n\thistory: Tue Aug 16 13:58:00 2016: ncea -d latitude,12.0,17.0 -d longitude,-8.0,8.0 merg_2006091100_4km-pixel.nc paperSize/merg_2006091100_4km-pixel.nc\n\tdimensions(sizes): (latitude(137), longitude(440), time(1))\n\tvariables: (double latitude(latitude), double longitude(longitude), float ch4(time, latitude, longitude))\nlon: Array[Double] \u003d Array(-7.9850335121154785, -7.948655128479004, -7.9122772216796875, -7.875898838043213, -7.839520454406738, -7.803142070770264, -7.766763687133789, -7.7303853034973145, -7.69400691986084, -7.657628536224365, -7.621250152587891, -7.584872245788574, -7.5484938621521, -7.512115478515625, -7.47573709487915, -7.439358711242676, -7.402980327606201, -7.366601943969727, -7.330223560333252, -7.293845176696777, -7.257466793060303, -7.221088886260986, -7.184710502624512, -7.148332118988037, -7.1119537353515625, -7.075575351715088, -7.039196968078613, -7.002818584442139, -6.966440200805664, -6.9300618171691895, -6.893683433532715, -6.857305526733398, -6.820927143096924, -6.784548759460449, -6.748170375823975, -6.7117919921875, -6.675413608551025, -6.639035224914551, -6.60265684...lat: Array[Double] \u003d Array(12.021308898925781, 12.057692527770996, 12.094076156616211, 12.130459785461426, 12.16684341430664, 12.203227043151855, 12.23961067199707, 12.275994300842285, 12.3123779296875, 12.348761558532715, 12.38514518737793, 12.421528816223145, 12.45791244506836, 12.494296073913574, 12.530680656433105, 12.56706428527832, 12.603447914123535, 12.63983154296875, 12.676215171813965, 12.71259880065918, 12.748982429504395, 12.78536605834961, 12.821749687194824, 12.858133316040039, 12.894516944885254, 12.930900573730469, 12.967284202575684, 13.003667831420898, 13.040051460266113, 13.076435089111328, 13.112818717956543, 13.149203300476074, 13.185586929321289, 13.221970558166504, 13.258354187011719, 13.294737815856934, 13.331121444702148, 13.367505073547363, 13.403888702392578, ...\nlabeled: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[8] at map at MCSOps.scala:566\n\nfiltered: org.apache.spark.rdd.RDD[org.dia.core.SciDataset] \u003d MapPartitionsRDD[9] at map at \u003cconsole\u003e:48\n\nconsecFrames: org.apache.spark.rdd.RDD[(org.dia.core.SciDataset, org.dia.core.SciDataset)] \u003d MapPartitionsRDD[20] at map at SRDDFunctions.scala:209\n\nedgeListRDD: org.apache.spark.rdd.RDD[org.dia.algorithms.mcs.MCSEdge] \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\n\nres1: edgeListRDD.type \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\n\nres2: edgeListRDD.type \u003d MapPartitionsRDD[21] at flatMap at MCSOps.scala:360\nMCSEdgeList: Array[org.dia.algorithms.mcs.MCSEdge] \u003d Array(((2006091115:6), (2006091116:4)), ((2006091115:10), (2006091116:4)), ((2006091115:9), (2006091116:12)), ((2006091115:11), (2006091116:4)), ((2006091207:6), (2006091208:7)), ((2006091211:3), (2006091212:3)), ((2006091211:6), (2006091212:5)), ((2006091123:40), (2006091200:57)), ((2006091123:10), (2006091200:10)), ((2006091111:13), (2006091112:13)), ((2006091111:12), (2006091112:12)), ((2006091111:8), (2006091112:11)), ((2006091119:14), (2006091120:4)), ((2006091119:15), (2006091120:4)), ((2006091119:2), (2006091120:5)), ((2006091119:7), (2006091120:8)), ((2006091119:2), (2006091120:4)), ((2006091112:13), (2006091113:9)), ((2006091112:11), (2006091113:9)), ((2006091112:15), (2006091113:17)), ((2006091112:16), (2006091113:19)), ((20...MCSNodeMap: scala.collection.mutable.HashMap[String,org.dia.algorithms.mcs.MCSNode] \u003d Map(2006091206:9 -\u003e {\"frameNum\":2006091206,\"cloudElemNum\":9.0,\"metadata\":{},\"grid\":{\"(11, 309)\":219.0,\"(10, 320)\":239.0,\"(4, 321)\":221.0,\"(12, 300)\":231.0,\"(6, 301)\":218.0,\"(21, 324)\":229.0,\"(8, 305)\":223.0,\"(3, 306)\":231.0,\"(11, 310)\":215.0,\"(17, 325)\":236.0,\"(13, 302)\":240.0,\"(2, 293)\":212.0,\"(10, 307)\":219.0,\"(3, 318)\":235.0,\"(2, 316)\":228.0,\"(7, 303)\":222.0,\"(16, 323)\":239.0,\"(16, 308)\":227.0,\"(1, 291)\":218.0,\"(13, 314)\":231.0,\"(7, 294)\":236.0,\"(10, 319)\":235.0,\"(0, 312)\":233.0,\"(29, 332)\":238.0,\"(20, 322)\":228.0,\"(20, 310)\":238.0,\"(22, 326)\":227.0,\"(14, 304)\":224.0,\"(28, 330)\":236.0,\"(1, 314)\":228.0,\"(15, 306)\":230.0,\"(9, 307)\":221.0,\"(9, 298)\":237.0,\"(12, 312)\":221.0,\"(5, 316)\":235.0,\"(2, 298)\":2...\nbroadcastedNodeMap: org.apache.spark.broadcast.Broadcast[scala.collection.mutable.HashMap[String,org.dia.algorithms.mcs.MCSNode]] \u003d Broadcast(8)\n"
+      },
+      "dateCreated": "Jan 25, 2017 7:58:50 AM",
+      "dateStarted": "Feb 7, 2017 6:39:25 AM",
+      "dateFinished": "Feb 7, 2017 6:40:29 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Add MetaData To The SciDataset",
+      "text": "val sampleDataset \u003d sRDD.take(1)(0)\nval lon \u003d sampleDataset(\"longitude\").data()\nval lat \u003d sampleDataset(\"latitude\").data()\n\nval labeled \u003d MCSOps.recordFrameNumber(sRDD, variableName)",
+      "dateUpdated": "Feb 9, 2017 12:39:42 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672416808_102794125",
+      "id": "20170209-123336_69320433",
+      "dateCreated": "Feb 9, 2017 12:33:36 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## Find cloud elements and connect the cloud elements between frames\n*Cloud elements* are defined as contiguous regions where the temperature is atleast 241.0K and an area is met. 241K is a reasonable brightness temperature threshold for deep convection in detection in the Tropics (Machado et al. 1998).\n\nIn order to observe features are forming over time, it is necessary to connect *cloud elements* between *frames*. The connection, referred to as an *edge*, is created between *cloud elements* of consecutive *frames* if: \n* the area between consecutive frames is \u003e\u003d 2400.00 squared_km\nOR\n* the area between consecutive frames is \u003c 2400.00 squared_km and the convective fraction is \u003c 0.9. The convective fraction is defined as the ratio of minimum to maximum brightness temperature\n\n![Finding cloud elements](https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/sRDDtimeSeq.png)                          \n               Figure 2: Illustration of how the cloud elements and edges are determined\n\nThis algorithm was originally developed for use in West Africa. As such, this criteria follows discussions in the literature about the microphysical characterization of MCS features in the area of interest and previous temperature threshold implementations (Bouniol et al. 2010, Machado et al. 1993, Mapes and Houze 1993, Goyens et al. 2011)\n\nAt the end of this step, a sparely connected graph representing the  cloud elements found and their connectivity through out the user defined datasets. \n\nNotice the **sciTensor** is being passed around and manipulated.",
+      "dateUpdated": "Feb 9, 2017 12:35:24 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672518716_-1082847099",
+      "id": "20170209-123518_317944211",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\u003ch2\u003eFind cloud elements and connect the cloud elements between frames\u003c/h2\u003e\n\u003cp\u003e\u003cem\u003eCloud elements\u003c/em\u003e are defined as contiguous regions where the temperature is atleast 241.0K and an area is met. 241K is a reasonable brightness temperature threshold for deep convection in detection in the Tropics (Machado et al. 1998).\u003c/p\u003e\n\u003cp\u003eIn order to observe features are forming over time, it is necessary to connect \u003cem\u003ecloud elements\u003c/em\u003e between \u003cem\u003eframes\u003c/em\u003e. The connection, referred to as an \u003cem\u003eedge\u003c/em\u003e, is created between \u003cem\u003ecloud elements\u003c/em\u003e of consecutive \u003cem\u003eframes\u003c/em\u003e if:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003ethe area between consecutive frames is \u003e\u003d 2400.00 squared_km\n\u003cbr  /\u003eOR\u003c/li\u003e\n\u003cli\u003ethe area between consecutive frames is \u0026lt; 2400.00 squared_km and the convective fraction is \u0026lt; 0.9. The convective fraction is defined as the ratio of minimum to maximum brightness temperature\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003e\u003cimg src\u003d\"https://raw.githubusercontent.com/SciSpark/scispark_zeppelin_notebooks/master/images/sRDDtimeSeq.png\" alt\u003d\"Finding cloud elements\" /\u003e\u003c/p\u003e\n\u003cpre\u003e\u003ccode\u003e           Figure 2: Illustration of how the cloud elements and edges are determined\n\u003c/code\u003e\u003c/pre\u003e\n\u003cp\u003eThis algorithm was originally developed for use in West Africa. As such, this criteria follows discussions in the literature about the microphysical characterization of MCS features in the area of interest and previous temperature threshold implementations (Bouniol et al. 2010, Machado et al. 1993, Mapes and Houze 1993, Goyens et al. 2011)\u003c/p\u003e\n\u003cp\u003eAt the end of this step, a sparely connected graph representing the  cloud elements found and their connectivity through out the user defined datasets.\u003c/p\u003e\n\u003cp\u003eNotice the \u003cstrong\u003esciTensor\u003c/strong\u003e is being passed around and manipulated.\u003c/p\u003e\n"
+      },
+      "dateCreated": "Feb 9, 2017 12:35:18 PM",
+      "dateStarted": "Feb 9, 2017 12:35:22 PM",
+      "dateFinished": "Feb 9, 2017 12:35:22 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Maintain The Time Series In The Parallel Environment",
+      "text": "val filtered \u003d labeled.map(p \u003d\u003e p(variableName) \u003d p(variableName) \u003c\u003d 241.0)\nval consecFrames \u003d SRDDFunctions.fromRDD(filtered).pairConsecutiveFrames(\"FRAME\")\n",
+      "dateUpdated": "Feb 9, 2017 12:39:43 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672726259_-1272438006",
+      "id": "20170209-123846_340437503",
+      "dateCreated": "Feb 9, 2017 12:38:46 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Connect The Cloud Elements And Store Metadata On Each Node",
+      "text": "val edgeListRDD \u003d MCSOps.findEdges(consecFrames, variableName, maxAreaOverlapThreshold, minAreaOverlapThreshold, convectiveFraction, minArea, nodeMinArea, minAreaThres)\n\nedgeListRDD.cache()\nedgeListRDD.localCheckpoint()\n\nval MCSEdgeList \u003d edgeListRDD.collect()\nval MCSNodeMap \u003d MCSOps.createNodeMapFromEdgeList(MCSEdgeList, lat, lon)\nval broadcastedNodeMap \u003d ssc.sparkContext.broadcast(MCSNodeMap)",
+      "dateUpdated": "Feb 9, 2017 12:41:21 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672791623_-1871968738",
+      "id": "20170209-123951_1907054657",
+      "dateCreated": "Feb 9, 2017 12:39:51 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Add Lightning data and write netCDFs",
+      "text": "MCSEdgeList.foreach(edge \u003d\u003e {\n    val (srcMCSNode, dstMCSNode) \u003d MCSUtils.getMCSNodes(edge, MCSNodeMap)\n    MCSOps.updateLightningWWLLN(srcMCSNode, broadcastedWWLLNDF)\n    MCSOps.updateLightningWWLLN(dstMCSNode, broadcastedWWLLNDF)\n    MCSUtils.writeEdgeNodesToNetCDF(edge, broadcastedNodeMap, lat, lon, false, \"/tmp\", null)\n})\n\nprintln(\"NUM VERTICES : \" + MCSNodeMap.size + \"\\n\")\nprintln(\"NUM EDGES : \" + MCSEdgeList.size + \"\\n\")\n\nval MCSNodeFilename: String \u003d outputDir + System.getProperty(\"file.separator\") + \"MCSNodes.json\"\n\nval MCSEdgeFilename: String \u003d outputDir + System.getProperty(\"file.separator\") + \"MCSEdges.txt\"\n",
+      "dateUpdated": "Feb 7, 2017 6:40:42 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485360622416_1315466052",
+      "id": "20170125-081022_21435731",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "NUM VERTICES : 75\n\nNUM EDGES : 66\n\n\nMCSNodeFilename: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486478368996/MCSNodes.json\n\nMCSEdgeFilename: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486478368996/MCSEdges.txt\n"
+      },
+      "dateCreated": "Jan 25, 2017 8:10:22 AM",
+      "dateStarted": "Feb 7, 2017 6:40:42 AM",
+      "dateFinished": "Feb 7, 2017 6:42:35 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Find subgraphs",
+      "text": "val edgeListRDDIndexed \u003d MCSOps.createPartitionIndex(edgeListRDD)\nval count \u003d edgeListRDDIndexed.count.toInt\nval buckets \u003d 4\nval maxParitionSize \u003d count / buckets\nval subgraphs \u003d edgeListRDDIndexed\n  .map(MCSOps.mapEdgesToBuckets(_, maxParitionSize, buckets))\n  .groupByKey()\nval subgraphsFound \u003d MCSOps.findSubgraphsIteratively(subgraphs, 1, maxParitionSize, minGraphLength, outputDir)\n\nval subgraphsPath \u003d outputDir + System.getProperty(\"file.separator\") + \"subgraphs-*\"\nval subgraphsRDD \u003d MCCOps.loadSubgraphsFromFile(subgraphsPath, ssc.sparkContext)\n",
+      "dateUpdated": "Feb 7, 2017 6:53:00 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485360719047_-3499150",
+      "id": "20170125-081159_941449875",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nedgeListRDDIndexed: org.apache.spark.rdd.RDD[org.dia.algorithms.mcs.MCSEdge] \u003d MapPartitionsRDD[691] at flatMap at MCSOps.scala:326\n\ncount: Int \u003d 66\n\nbuckets: Int \u003d 4\n\nmaxParitionSize: Int \u003d 16\n\nsubgraphs: org.apache.spark.rdd.RDD[(Int, Iterable[org.dia.algorithms.mcs.MCSEdge])] \u003d ShuffledRDD[693] at groupByKey at \u003cconsole\u003e:76\n\nsubgraphsFound: Array[(Int, Iterable[org.dia.algorithms.mcs.MCSEdge])] \u003d Array((1,HashMap(((2006091100:14), (2006091101:15)), ((2006091101:15), (2006091102:15)), ((2006091100:14), (2006091101:19)), ((2006091100:35), (2006091101:49)))))\n\nsubgraphsPath: String \u003d hdfs://my-cluster:8020/user/zeppelin/output/1486478368996/subgraphs-*\n\nsubgraphsRDD: org.apache.spark.rdd.RDD[scala.collection.mutable.MutableList[(String, String)]] \u003d MapPartitionsRDD[700] at map at MCCOps.scala:224\n"
+      },
+      "dateCreated": "Jan 25, 2017 8:11:59 AM",
+      "dateStarted": "Feb 7, 2017 6:53:00 AM",
+      "dateFinished": "Feb 7, 2017 6:53:05 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Find Development Stage of each cloud element",
+      "text": "val areasTempsAllRDD \u003d subgraphsRDD.map(x \u003d\u003e (MCSOps.getMCSAreas(x, broadcastedNodeMap), MCSOps.getMCS210KTemps(x, broadcastedNodeMap)))\n\nval areasTempsRDD \u003d areasTempsAllRDD.map{ x \u003d\u003e\n    val areaTempList \u003d new mutable.ListBuffer[(String, Double, Double, List[String])]\n    for (i \u003c- 0 to x._1.length - 1) {\n      areaTempList +\u003d ((x._1(i)._1, x._1(i)._2, x._2(i)._2, x._1(i)._3))\n    }\n    areaTempList.toList\n}\n\n// Add the stages\nval findTheStages \u003d areasTempsRDD.map(x \u003d\u003e MCSOps.getDevStage(x))",
+      "dateUpdated": "Feb 7, 2017 6:53:12 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485360847410_275629338",
+      "id": "20170125-081407_1608244723",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nareasTempsAllRDD: org.apache.spark.rdd.RDD[(List[(String, Double, List[String])], List[(String, Double, List[String])])] \u003d MapPartitionsRDD[701] at map at \u003cconsole\u003e:86\n\nareasTempsRDD: org.apache.spark.rdd.RDD[List[(String, Double, Double, List[String])]] \u003d MapPartitionsRDD[702] at map at \u003cconsole\u003e:88\n\nfindTheStages: org.apache.spark.rdd.RDD[List[(String, String, List[String])]] \u003d MapPartitionsRDD[703] at map at \u003cconsole\u003e:90\n"
+      },
+      "dateCreated": "Jan 25, 2017 8:14:07 AM",
+      "dateStarted": "Feb 7, 2017 6:53:12 AM",
+      "dateFinished": "Feb 7, 2017 6:53:13 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Update NodeMap",
+      "text": "val allStages \u003d findTheStages.collect().flatten\nfor (x \u003c- 0 to allStages.length - 1) {\n    for (nodeStr \u003c- allStages(x)._3) {\n      MCSNodeMap(nodeStr).updateDevStage(allStages(x)._2)\n    }\n}\n\nval removeNodes \u003d findTheStages.map{ x \u003d\u003e\n    var count \u003d 0\n    var mcs: Boolean \u003d false\n    var rNodes \u003d new mutable.ListBuffer[List[String]]\n    for(i \u003c- 1 to x.length - 1) {\n      rNodes +\u003d x(i)._3\n      count \u003d if (x(i)._2 \u003d\u003d \"M\") count + 1 else 0\n      if (count \u003e\u003d 3) {\n        mcs \u003d true\n      }\n    }\n    if (mcs) {\n      rNodes.remove(0, rNodes.length)\n    } else {\n      rNodes +\u003d x(0)._3\n    }\n    rNodes.flatten.toList\n}\n\n// Update MCSNode map directly\nval subgraphsNodes \u003d subgraphsRDD.collect().flatten.flatMap{ case(a, b) \u003d\u003e List(a, b)}\nval notSubgraphNodes \u003d MCSNodeMap.keys.filterNot(subgraphsNodes.toSet).toList\n\nval allToRemove \u003d notSubgraphNodes ::: removeNodes.collect().toList.flatten\nMCSNodeMap --\u003d allToRemove",
+      "dateUpdated": "Feb 7, 2017 12:35:39 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "editorHide": false,
+        "title": true,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485360950755_-1480628443",
+      "id": "20170125-081550_1529884010",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "allStages: Array[(String, String, List[String])] \u003d Array((2006091111,I,List(2006091111:12, 2006091111:13, 2006091111:8)), (2006091112,I,List(2006091112:12, 2006091112:13, 2006091112:15, 2006091112:14, 2006091112:11, 2006091112:16)), (2006091113,M,List(2006091113:9, 2006091113:17, 2006091113:13, 2006091113:19)), (2006091114,M,List(2006091114:8, 2006091114:18, 2006091114:12, 2006091114:13)), (2006091115,M,List(2006091115:11, 2006091115:6, 2006091115:10)), (2006091116,M,List(2006091116:4, 2006091116:15, 2006091116:3, 2006091116:7)), (2006091117,M,List(2006091117:9, 2006091117:4)), (2006091118,M,List(2006091118:4, 2006091118:10, 2006091118:3)), (2006091119,M,List(2006091119:2, 2006091119:14, 2006091119:15)), (2006091120,D,List(2006091120:4, 2006091120:5)), (2006091121,D,List(2006091121:2, 2...\nremoveNodes: org.apache.spark.rdd.RDD[List[String]] \u003d MapPartitionsRDD[704] at map at \u003cconsole\u003e:96\nsubgraphsNodes: Array[String] \u003d Array(2006091122:26, 2006091123:17, 2006091121:2, 2006091122:26, 2006091111:12, 2006091112:12, 2006091113:9, 2006091114:8, 2006091118:4, 2006091119:2, 2006091122:26, 2006091123:10, 2006091120:4, 2006091121:2, 2006091115:11, 2006091116:4, 2006091112:13, 2006091113:9, 2006091112:15, 2006091113:17, 2006091200:10, 2006091201:16, 2006091120:4, 2006091121:41, 2006091117:9, 2006091118:4, 2006091121:2, 2006091122:9, 2006091114:18, 2006091115:6, 2006091111:13, 2006091112:13, 2006091114:12, 2006091115:11, 2006091113:17, 2006091114:8, 2006091116:15, 2006091117:4, 2006091119:2, 2006091120:4, 2006091116:3, 2006091117:4, 2006091115:6, 2006091116:4, 2006091112:14, 2006091113:17, 2006091119:2, 2006091120:5, 2006091119:14, 2006091120:4, 2006091111:8, 2006091112:11, 200609...\nnotSubgraphNodes: List[String] \u003d List(2006091206:9, 2006091209:4, 2006091206:10, 2006091122:56, 2006091200:57, 2006091101:15, 2006091102:15, 2006091207:4, 2006091116:12, 2006091100:35, 2006091207:5, 2006091119:7, 2006091100:14, 2006091115:9, 2006091101:19, 2006091120:8, 2006091205:5, 2006091101:49, 2006091208:5, 2006091123:40)\n\nallToRemove: List[String] \u003d List(2006091206:9, 2006091209:4, 2006091206:10, 2006091122:56, 2006091200:57, 2006091101:15, 2006091102:15, 2006091207:4, 2006091116:12, 2006091100:35, 2006091207:5, 2006091119:7, 2006091100:14, 2006091115:9, 2006091101:19, 2006091120:8, 2006091205:5, 2006091101:49, 2006091208:5, 2006091123:40, 2006091209:5, 2006091210:1, 2006091211:3, 2006091212:3, 2006091208:6)\nres11: MCSNodeMap.type \u003d Map(2006091122:26 -\u003e {\"frameNum\":2006091122,\"cloudElemNum\":26.0,\"metadata\":{},\"grid\":{\"(62, 66)\":235.0,\"(68, 100)\":234.0,\"(60, 131)\":222.0,\"(57, 120)\":227.0,\"(79, 96)\":233.0,\"(57, 119)\":225.0,\"(69, 67)\":235.0,\"(77, 124)\":213.0,\"(54, 125)\":215.0,\"(48, 119)\":223.0,\"(83, 95)\":240.0,\"(81, 123)\":225.0,\"(67, 110)\":229.0,\"(82, 97)\":239.0,\"(73, 101)\":231.0,\"(64, 127)\":216.0,\"(74, 91)\":238.0,\"(42, 131)\":240.0,\"(84, 132)\":239.0,\"(55, 127)\":217.0,\"(47, 117)\":229.0,\"(65, 86)\":239.0,\"(64, 88)\":226.0,\"(52, 133)\":225.0,\"(74, 103)\":232.0,\"(80, 108)\":238.0,\"(49, 110)\":240.0,\"(83, 142)\":241.0,\"(77, 136)\":219.0,\"(71, 108)\":233.0,\"(62, 135)\":231.0,\"(57, 94)\":234.0,\"(74, 142)\":226.0,\"(54, 113)\":235.0,\"(59, 112)\":226.0,\"(78, 84)\":229.0,\"(82, 140)\":236.0,\"(82, 139)\":231.0,\"(83, 83)\":2..."
+      },
+      "dateCreated": "Jan 25, 2017 8:15:50 AM",
+      "dateStarted": "Feb 7, 2017 6:53:16 AM",
+      "dateFinished": "Feb 7, 2017 6:53:24 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Create MCS Database",
+      "text": "// create the row schema\ncase class MCSNodeRow(frameNum:Int, cloudElemt:Int, centerLat:Double, centerLon:Double,ceArea:Double, avgTemp:Double, minTemp:Double, lightningData:String, devStage:String)\n// extract needed info from the list\nval MCSNodeMapList \u003d MCSNodeMap.map{case(key,value) \u003d\u003e{\n    (key.split(\":\")(0).toInt, key.split(\":\")(1).toInt, value.getCenterLat(), value.getCenterLon(), value.getArea(), value.getAvgTemp(), value.getMinTemp(), value.getLightningData(), value.getDevStage())\n}}\n// create the table\nval MCSMapDF \u003d sqlContext.sparkContext.parallelize(MCSNodeMapList.toSeq).map(v \u003d\u003e MCSNodeRow(v._1,v._2,v._3,v._4,v._5,v._6,v._7,v._8,v._9)).toDF()\n// register it\nMCSMapDF.registerTempTable(\"ce_table\")",
+      "dateUpdated": "Feb 7, 2017 12:36:23 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485361890330_1730478776",
+      "id": "20170125-083130_35362358",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\ndefined class MCSNodeRow\nMCSNodeMapList: scala.collection.mutable.Iterable[(Int, Int, Double, Double, Double, Double, Double, String, String)] \u003d ArrayBuffer((2006091122,26,14.313480854034424,-4.310821890830994,2324.0,227.81239242685027,207.0,none,D), (2006091208,7,12.348762035369873,7.2211103439331055,621.0,210.9404186795491,191.0,none,I), (2006091112,16,15.677868843078613,-2.637418508529663,38.0,220.92105263157896,205.0,none,I), (2006091111,12,14.404439926147461,-1.382365882396698,12.0,223.33333333333334,214.0,none,I), (2006091209,6,12.476104736328125,6.930083751678467,1268.0,206.8146687697161,187.0,none,I), (2006091122,9,12.821749687194824,-1.7279600501060486,166.0,235.03012048192772,221.0,none,D), (2006091118,10,14.404439926147461,-5.0747668743133545,21.0,219.8095238095238,210.0,none,M), (2006091120,5,12.603...\nMCSMapDF: org.apache.spark.sql.DataFrame \u003d [frameNum: int, cloudElemt: int ... 7 more fields]\n\nwarning: there was one deprecation warning; re-run with -deprecation for details\n"
+      },
+      "dateCreated": "Jan 25, 2017 8:31:30 AM",
+      "dateStarted": "Feb 7, 2017 7:31:46 AM",
+      "dateFinished": "Feb 7, 2017 7:31:47 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%sql \nselect * from ce_table",
+      "dateUpdated": "Feb 2, 2017 11:52:42 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": true,
+          "keys": [
+            {
+              "name": "centerLon",
+              "index": 3.0,
+              "aggr": "sum"
+            }
+          ],
+          "values": [
+            {
+              "name": "ceArea",
+              "index": 4.0,
+              "aggr": "avg"
+            }
+          ],
+          "groups": [
+            {
+              "name": "devStage",
+              "index": 8.0,
+              "aggr": "sum"
+            }
+          ],
+          "scatter": {
+            "xAxis": {
+              "name": "frameNum",
+              "index": 0.0,
+              "aggr": "sum"
+            },
+            "yAxis": {
+              "name": "cloudElemt",
+              "index": 1.0,
+              "aggr": "sum"
+            }
+          }
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/sql"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1485961283419_-1039151163",
+      "id": "20170201-070123_498819287",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TABLE",
+        "msg": "frameNum\tcloudElemt\tcenterLat\tcenterLon\tceArea\tavgTemp\tminTemp\tlightningData\tdevStage\n2006091122\t26\t14.313480854034424\t-4.310821890830994\t2324.0\t227.81239242685027\t207.0\tnone\tD\n2006091208\t7\t12.348762035369873\t7.2211103439331055\t621.0\t210.9404186795491\t191.0\tnone\tI\n2006091112\t16\t15.677868843078613\t-2.637418508529663\t38.0\t220.92105263157896\t205.0\tnone\tI\n2006091111\t12\t14.404439926147461\t-1.382365882396698\t12.0\t223.33333333333334\t214.0\tnone\tI\n2006091209\t6\t12.476104736328125\t6.930083751678467\t1268.0\t206.8146687697161\t187.0\tnone\tI\n2006091122\t9\t12.821749687194824\t-1.7279600501060486\t166.0\t235.03012048192772\t221.0\tnone\tD\n2006091118\t10\t14.404439926147461\t-5.0747668743133545\t21.0\t219.8095238095238\t210.0\tnone\tM\n2006091120\t5\t12.603447437286377\t-0.1455024927854538\t238.0\t228.16806722689077\t213.0\tnone\tD\n2006091212\t5\t12.930901050567627\t5.602274417877197\t5206.0\t206.8597771801767\t187.0\tnone\tM\n2006091114\t8\t14.531783103942871\t-1.7279601246118546\t3994.0\t213.0032548823235\t190.0\tnone\tM\n2006091112\t13\t14.604549884796143\t-0.8548800647258759\t141.0\t218.7872340425532\t203.0\tnone\tI\n2006091211\t6\t12.730790615081787\t6.184327840805054\t3418.0\t204.89994148624928\t186.0\tnone\tM\n2006091118\t4\t14.695509433746338\t-3.164904296398163\t9011.0\t217.4900676950394\t195.0\tnone\tM\n2006091113\t9\t14.004219055175781\t-1.0185825526714325\t1469.0\t212.41252552756978\t191.0\tnone\tM\n2006091114\t13\t13.785917282104492\t1.4369550943374634\t23.0\t215.04347826086956\t201.0\tnone\tM\n2006091115\t11\t13.65857458114624\t1.182306706905365\t179.0\t220.5195530726257\t205.0\tnone\tM\n2006091116\t3\t12.530680179595947\t0.9276583790779114\t51.0\t221.27450980392157\t210.0\tnone\tM\n2006091111\t8\t13.53123140335083\t-1.0003933608531952\t34.0\t225.76470588235293\t214.0\tnone\tI\n2006091119\t14\t14.459015369415283\t-5.256658554077148\t190.0\t210.44736842105263\t197.0\tnone\tM\n2006091113\t17\t14.877427577972412\t-2.255445957183838\t428.0\t214.81308411214954\t199.0\tnone\tM\n2006091121\t41\t16.023513793945312\t-4.9474427700042725\t205.0\t236.49756097560976\t229.0\tnone\tD\n2006091116\t15\t16.023513793945312\t-2.1281217336654663\t31.0\t217.4516129032258\t205.0\tnone\tM\n2006091112\t15\t14.986578941345215\t-2.255445957183838\t129.0\t215.02325581395348\t202.0\tnone\tI\n2006091123\t17\t14.713701248168945\t-5.2020909786224365\t166.0\t233.15060240963857\t220.0\tnone\treI\n2006091120\t4\t14.513591289520264\t-3.0193910198286176\t7866.0\t224.59801678108315\t200.0\tnone\tD\n2006091114\t18\t16.278200149536133\t-3.5650659799575806\t23.0\t225.2173913043478\t212.0\tnone\tM\n2006091122\t13\t12.930901050567627\t-2.364580988883972\t362.0\t231.5414364640884\t219.0\tnone\tD\n2006091119\t2\t14.586358547210693\t-2.437337577342987\t10568.0\t221.80545041635125\t195.0\tnone\tM\n2006091118\t3\t13.294737339019775\t-0.10912415385246277\t2358.0\t219.87022900763358\t197.0\tnone\tM\n2006091112\t12\t14.368056297302246\t-1.2550417482852936\t169.0\t218.85207100591717\t197.0\tnone\tI\n2006091114\t12\t13.676766395568848\t1.1095500588417053\t47.0\t212.40425531914894\t201.0\tnone\tM\n2006091115\t6\t14.659125328063965\t-2.03717602789402\t5863.0\t212.49718574108817\t188.0\tnone\tM\n2006091117\t4\t14.640933990478516\t-2.1281217336654663\t9995.0\t215.28344172086042\t189.0\tnone\tM\n2006091115\t10\t13.422080516815186\t0.6911991834640503\t49.0\t217.40816326530611\t200.0\tnone\tM\n2006091206\t11\t12.075884342193604\t7.894109487533569\t19.0\t221.57894736842104\t207.0\tnone\tI\n2006091207\t6\t12.257802486419678\t7.5303261280059814\t247.0\t212.20242914979758\t192.0\tnone\tI\n2006091113\t19\t15.732444286346436\t-2.855688452720642\t392.0\t213.46173469387756\t199.0\tnone\tM\n2006091201\t16\t15.02296257019043\t-3.6742008924484253\t284.0\t231.8556338028169\t220.0\tnone\tD\n2006091111\t13\t14.6045503616333\t-0.8003125190734863\t33.0\t223.87878787878788\t213.0\tnone\tI\n2006091121\t2\t14.349864482879639\t-3.2376609444618225\t4885.0\t227.66816786079835\t204.0\tnone\tD\n2006091113\t13\t13.276546001434326\t0.09095667023211718\t41.0\t220.8048780487805\t198.0\tnone\tM\n2006091112\t11\t13.622190952301025\t-0.8366908878087997\t334.0\t218.91017964071855\t202.0\tnone\tI\n2006091112\t14\t14.713701248168945\t-1.8734734058380127\t43.0\t224.7906976744186\t213.0\tnone\tI\n2006091210\t2\t12.603447914123535\t6.584489583969116\t2195.0\t205.2132118451025\t188.0\tnone\tM\n2006091117\t9\t14.240713119506836\t-2.7829318046569824\t43.0\t219.65116279069767\t199.0\tnone\tM\n2006091116\t4\t14.622742176055908\t-1.7461493611335754\t7852.0\t213.66288843606725\t193.0\tnone\tM\n2006091119\t15\t14.349864482879639\t-5.8750903606414795\t34.0\t215.97058823529412\t205.0\tnone\tM\n2006091123\t10\t14.258905410766602\t-3.455931067466736\t1320.0\t228.4598484848485\t211.0\tnone\treI\n2006091116\t7\t12.803557872772217\t0.4547400176525116\t25.0\t220.6\t208.0\tnone\tM\n2006091200\t10\t14.295289039611816\t-3.7469576597213745\t761.0\t230.71879106438897\t213.0\tnone\treI\n"
+      },
+      "dateCreated": "Feb 1, 2017 7:01:23 AM",
+      "dateStarted": "Feb 2, 2017 11:52:42 AM",
+      "dateFinished": "Feb 2, 2017 11:52:42 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Finding the Latitudinal band for maximum devStage counts",
+      "text": "// to make a def, parameters to pass are latmax, startLat, latWidth, stage. Return maxCountTuple\nval latmax \u003d 16.0\nval startLat \u003d 12.0\nval latWidth \u003d 2.0\nval stage \u003d \u0027M\u0027\n\ndef getLatBandForMaxStage(latmax: Double, startLat: Double, latWidth:Double, stage:Char): List[(String, Double, Double, List[Double], List[String])] \u003d {\n    var currLat \u003d startLat\n    val maxCountTuple \u003d new mutable.ListBuffer[(String, Double, Double, List[Double], List[String])] //(devStage, currLat, count, List(lonMin, lonMax), List(cloudelements))\n    var maxCount \u003d 0.0\n    var currCountM \u003d 0.0\n    val currStage \u003d \u0027M\u0027\n    while (currLat \u003c\u003d (latmax - latWidth)){\n        var topLimit \u003d currLat + latWidth \n        // var curr \u003d sqlContext.sql(\"SELECT frameNum, cloudElemt, centerLat, centerLon, devStage FROM ce_table WHERE (devStage \u003d\u003d \"+currStage+\") AND (centerLat \u003e\u003d \"+currLat+\" AND centerLat \u003c\u003d \" + topLimit +\")\")\n        var curr \u003d sqlContext.sql(\"SELECT frameNum, cloudElemt, centerLat, centerLon, devStage FROM ce_table WHERE (centerLat \u003e\u003d \"+currLat+\" AND centerLat \u003c\u003d \" + topLimit +\") AND devStage \u003d\u003d \u0027M\u0027\")\n        currCountM \u003d curr.count\n    \n        if (currCountM \u003e maxCount){\n            // empty exisiting list and add this one only\n            for (i \u003c-0 to maxCountTuple.length -1){\n                maxCountTuple.remove(i)\n            }\n            var lonMin \u003d curr.groupBy(\"devStage\").min(\"centerLon\").collect().toList(0)(1).asInstanceOf[Double]\n            var lonMax \u003d curr.groupBy(\"devStage\").max(\"centerLon\").collect().toList(0)(1).asInstanceOf[Double]\n            maxCountTuple +\u003d ((String.valueOf(currStage), currLat, currCountM, List(lonMin,lonMax), curr.select(\"frameNum\", \"cloudElemt\").rdd.map(r \u003d\u003e r(0)+\":\"+r(1)).collect().toList))\n            maxCount \u003d currCountM\n        } else if (currCountM \u003d\u003d maxCount){\n            var lonMin \u003d curr.groupBy(\"devStage\").min(\"centerLon\").collect().toList(0)(1).asInstanceOf[Double]\n            var lonMax \u003d curr.groupBy(\"devStage\").max(\"centerLon\").collect().toList(0)(1).asInstanceOf[Double]\n            maxCountTuple +\u003d ((String.valueOf(currStage), currLat, currCountM, List(lonMin,lonMax), curr.select(\"frameNum\", \"cloudElemt\").rdd.map(r \u003d\u003e r(0)+\":\"+r(1)).collect().toList))\n            maxCount \u003d currCountM\n        }\n        currLat \u003d currLat + 1.0\n    }\n    maxCountTuple.toList\n}\n\nval l \u003d getBandForMaxStage(latmax, startLat, latWidth, stage)",
+      "dateUpdated": "Feb 9, 2017 12:41:48 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [
+            {
+              "name": "frameNum",
+              "index": 0.0,
+              "aggr": "sum"
+            }
+          ],
+          "values": [
+            {
+              "name": "cloudElemt",
+              "index": 1.0,
+              "aggr": "sum"
+            }
+          ],
+          "groups": [],
+          "scatter": {
+            "xAxis": {
+              "name": "frameNum",
+              "index": 0.0,
+              "aggr": "sum"
+            },
+            "yAxis": {
+              "name": "cloudElemt",
+              "index": 1.0,
+              "aggr": "sum"
+            }
+          }
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486047086950_840336308",
+      "id": "20170202-065126_1519928575",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nlatmax: Double \u003d 16.0\n\nstartLat: Double \u003d 12.0\n\nlatWidth: Double \u003d 2.0\n\nstage: Char \u003d M\n\ngetBandForMaxStage: (latmax: Double, startLat: Double, latWidth: Double, stage: Char)List[(String, Double, Double, List[Double], List[String])]\n\nl: List[(String, Double, Double, List[Double], List[String])] \u003d List((M,13.0,18.0,List(-5.8750903606414795, 1.4369550943374634),List(2006091118:10, 2006091114:8, 2006091118:4, 2006091113:9, 2006091114:13, 2006091115:11, 2006091119:14, 2006091113:17, 2006091119:2, 2006091118:3, 2006091114:12, 2006091115:6, 2006091117:4, 2006091115:10, 2006091113:13, 2006091117:9, 2006091116:4, 2006091119:15)))\n"
+      },
+      "dateCreated": "Feb 2, 2017 6:51:26 AM",
+      "dateStarted": "Feb 7, 2017 11:04:09 AM",
+      "dateFinished": "Feb 7, 2017 11:04:15 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Finding The Longitudinal Band For Maximum DevStage Counts",
+      "text": "val lonmax \u003d 10.0\nvar startLon \u003d 0.0\nval lonWidth \u003d 2\nval maxCountTuple \u003d new mutable.ListBuffer[(String, Double, Double, List[Double], List[String])] //(devStage, currLon, count, List(latMin, latMax), List(cloudelements))\nvar maxCount \u003d 0.0\nvar currCountM \u003d 0.0\nval currStage \u003d \u0027M\u0027\nvar currLon \u003d 0.0\n\ndef getLonBandForMaxStage(lonmax: Double, startLon: Double, lonWidth:Double, stage:Char): List[(String, Double, Double, List[Double], List[String])] \u003d {\n    var currLon \u003d startLon\n    val maxCountTuple \u003d new mutable.ListBuffer[(String, Double, Double, List[Double], List[String])] //(devStage, currLat, count, List(lonMin, lonMax), List(cloudelements))\n    var maxCount \u003d 0.0\n    var currCountM \u003d 0.0\n    val currStage \u003d \u0027M\u0027\n    while (currLon \u003c\u003d (lonmax - lonWidth)){\n        var topLimit \u003d currLon + lonWidth \n        var curr \u003d sqlContext.sql(\"SELECT frameNum, cloudElemt, centerLat, centerLon, devStage FROM ce_table WHERE (centerLon \u003e\u003d \"+currLon+\" AND centerLon \u003c\u003d \" + topLimit +\") AND devStage \u003d\u003d \u0027M\u0027\")\n        currCountM \u003d curr.count\n    \n        if (currCountM \u003e maxCount){\n            // empty exisiting list and add this one only\n            for (i \u003c-0 to maxCountTuple.length -1){\n                maxCountTuple.remove(i)\n            }\n            var latMin \u003d curr.groupBy(\"devStage\").min(\"centerLat\").collect().toList(0)(1).asInstanceOf[Double]\n            var latMax \u003d curr.groupBy(\"devStage\").max(\"centerLat\").collect().toList(0)(1).asInstanceOf[Double]\n            maxCountTuple +\u003d ((String.valueOf(currStage), currLon, currCountM, List(latMin,latMax), curr.select(\"frameNum\", \"cloudElemt\").rdd.map(r \u003d\u003e r(0)+\":\"+r(1)).collect().toList))\n            maxCount \u003d currCountM\n        } else if (currCountM \u003d\u003d maxCount){\n            var latMin \u003d curr.groupBy(\"devStage\").min(\"centerLat\").collect().toList(0)(1).asInstanceOf[Double]\n            var latMax \u003d curr.groupBy(\"devStage\").max(\"centerLat\").collect().toList(0)(1).asInstanceOf[Double]\n            maxCountTuple +\u003d ((String.valueOf(currStage), currLon, currCountM, List(latMin,latMax), curr.select(\"frameNum\", \"cloudElemt\").rdd.map(r \u003d\u003e r(0)+\":\"+r(1)).collect().toList))\n            maxCount \u003d currCountM\n        }\n        currLon \u003d currLon + 1.0\n    }\n    maxCountTuple.toList\n}\nval m \u003d getLonBandForMaxStage(lonmax, startLon, lonWidth, stage)",
+      "dateUpdated": "Feb 9, 2017 12:41:57 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486046778759_1941627222",
+      "id": "20170202-064618_1385621573",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nlonmax: Double \u003d 10.0\n\nstartLon: Double \u003d 0.0\n\nlonWidth: Int \u003d 2\n\nmaxCountTuple: scala.collection.mutable.ListBuffer[(String, Double, Double, List[Double], List[String])] \u003d ListBuffer()\n\nmaxCount: Double \u003d 0.0\n\ncurrCountM: Double \u003d 0.0\n\ncurrStage: Char \u003d M\n\ncurrLon: Double \u003d 0.0\n\ngetLonBandForMaxStage: (lonmax: Double, startLon: Double, lonWidth: Double, stage: Char)List[(String, Double, Double, List[Double], List[String])]\n\nm: List[(String, Double, Double, List[Double], List[String])] \u003d List((M,0.0,7.0,List(12.530680179595947, 13.785917282104492),List(2006091114:13, 2006091115:11, 2006091116:3, 2006091114:12, 2006091115:10, 2006091113:13, 2006091116:7)))\n"
+      },
+      "dateCreated": "Feb 2, 2017 6:46:18 AM",
+      "dateStarted": "Feb 7, 2017 11:15:15 AM",
+      "dateFinished": "Feb 7, 2017 11:15:21 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Generate pngs",
+      "text": "%pyspark\n#create pngs\n#TODO: do this in parallel in mapR job\nimport os, sys, glob\n\ndef make_imgs(currFile):\n    import numpy as np\n    import matplotlib\n    matplotlib.use(\u0027Agg\u0027)\n    \n    import matplotlib.pyplot as plt\n    plt.rcdefaults()\n    \n    from mpl_toolkits.basemap import Basemap, cm\n    \n    from netCDF4 import Dataset\n    \n    workdir \u003d \u0027\u0027.join(\u0027/\u0027+e for e in currFile.split(\u0027/\u0027)[1:-1])+\u0027/\u0027\n    \n    fh \u003d Dataset(currFile, \u0027r\u0027)\n    fhlats \u003d fh.variables[\u0027lat\u0027][:]\n    fhlons \u003d fh.variables[\u0027lon\u0027][:]\n    fhbt \u003d fh.variables[\u0027CE_brightness_temperature\u0027][:]\n    fh.close()\n    \n    lon1, lat1 \u003d np.meshgrid(fhlons, fhlats)\n    \n    plt.figure(figsize\u003d(3,2))\n\n    mp \u003d Basemap(projection \u003d \u0027merc\u0027, llcrnrlon \u003d min(fhlons), urcrnrlon \u003d max(fhlons), llcrnrlat \u003d min(fhlats), urcrnrlat \u003d max(fhlats), resolution \u003d \u0027l\u0027)\n    x1, y1 \u003d mp(lon1, lat1)\n    clevs1 \u003d range(190,240,2)\n    cs1 \u003d mp.contourf(x1, y1, fhbt, clevs1, cmap\u003dcmap)\n    \n    # Add Grid Lines\n    mp.drawparallels(np.arange(-6., 45., 0.5), labels\u003d[1,0,0,0], fontsize\u003d8)\n    meridians \u003d mp.drawmeridians(np.arange(-95., 65., 0.5), labels\u003d[0,0,0,1], fontsize\u003d8)\n    for m in meridians:\n        try:\n            meridians[m][1][0].set_rotation(45)\n        except:\n            pass\n    \n    mp.drawcoastlines(linewidth \u003d 0.25)\n    mp.drawcountries(linewidth \u003d 0.25)\n    \n    ti \u003d currFile.split(\u0027/\u0027)[-1].split(\u0027_\u0027)[0]\n    plt.savefig(workdir+\u0027pngs/\u0027+ti+\u0027.png\u0027)\n    \n    plt.close()\n   \n# get the list of the netCDFs generates\nworkdir \u003d \u0027/tmp/\u0027\n\nceLists \u003d glob.glob(workdir+\u0027F*.nc\u0027)\nif not os.path.exists(workdir+\u0027pngs/\u0027):\n    os.makedirs(workdir+\u0027pngs/\u0027)\n\n#create the colorbar\nimport matplotlib\nmatplotlib.use(\u0027Agg\u0027)\n\nfrom matplotlib import pyplot as plt\n \nimport numpy as np\nfrom mpl_toolkits.basemap import cm\ncmap \u003d matplotlib.cm.jet_r\n\nfig \u003d plt.figure(figsize\u003d(9, 1.5))\nax1 \u003d fig.add_axes([0.05, 0.80, 0.9, 0.15])\nnorm \u003d matplotlib.colors.Normalize(vmin\u003d190, vmax\u003d240)\ncb \u003d matplotlib.colorbar.ColorbarBase(ax1, cmap\u003dcmap, norm\u003dnorm, orientation\u003d\"horizontal\")\ncb.set_label(\u0027Brightness Temperature in deg_K\u0027)\nplt.savefig(workdir+\u0027pngs/colorbar.png\u0027)\nplt.close()\n\nfor t in ceLists:\n    make_imgs(t)",
+      "dateUpdated": "Feb 9, 2017 12:42:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "tableHide": true,
+        "title": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486482258190_-213305043",
+      "id": "20170207-074418_10183819",
+      "result": {
+        "code": "ERROR",
+        "type": "TEXT",
+        "msg": "Traceback (most recent call last):\n  File \"/tmp/zeppelin_pyspark-5056503082160266307.py\", line 266, in \u003cmodule\u003e\n    raise Exception(traceback.format_exc())\nException: Traceback (most recent call last):\n  File \"/tmp/zeppelin_pyspark-5056503082160266307.py\", line 264, in \u003cmodule\u003e\n    exec(code)\n  File \"\u003cstdin\u003e\", line 52, in \u003cmodule\u003e\n  File \"\u003cstdin\u003e\", line 9, in make_imgs\n  File \"/usr/local/sdeploy/anaconda/lib/python2.7/site-packages/netCDF4/__init__.py\", line 3, in \u003cmodule\u003e\n    from ._netCDF4 import *\nImportError: libjpeg.so.8: cannot open shared object file: No such file or directory\n\n"
+      },
+      "dateCreated": "Feb 7, 2017 7:44:18 AM",
+      "dateStarted": "Feb 7, 2017 7:44:39 AM",
+      "dateFinished": "Feb 7, 2017 7:44:42 AM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Python Functions for Viz",
+      "text": "%pyspark\nimport json, functools, sys, base64\nimport networkx as nx\nimport graphviz as gv\nimport collections\nimport json\nfrom collections import OrderedDict\n\nworkdir \u003d \u0027/tmp/\u0027\n\ndef generate_node_data(workdir, mcsNodeMap2n):\n    nodeData \u003d []\n    keyorder \u003d [\u0027nodeID\u0027, \u0027centerLat\u0027, \u0027centerLon\u0027, \u0027area\u0027, \u0027minTemp\u0027, \u0027minArea\u0027, \u0027minAreaTemp\u0027, \u0027minTempArea\u0027 , \u0027maxTemp\u0027, \u0027maxTempArea\u0027, \u0027latMin\u0027, \u0027latMax\u0027, \u0027lonMin\u0027, \u0027lonMax\u0027, \u0027lightningData\u0027, \u0027devStage\u0027, \u0027thumbnail\u0027]\n   \n    for aLine in mcsNodeMap2n:\n        try:\n            data1 \u003d json.loads(aLine)\n            data1.pop(\"grid\")\n            data1.pop(\"metadata\")\n            data1[u\"nodeID\"] \u003d \"F\"+str(data1[\"frameNum\"])+\"CE\"+str(data1[\"cloudElemNum\"])[:-2]\n            data1[u\"thumbnail\"] \u003d workdir + \"pngs/\" + \"F\"+str(data1[\"frameNum\"])+\"CE\"+str(data1[\"cloudElemNum\"])[:-2]+\".png\"\n            data1.pop(\"rowMax\")\n            data1.pop(\"rowMin\")\n            data1.pop(\"colMax\")\n            data1.pop(\"colMin\")\n            data1.pop(\"cloudElemNum\")\n            data1.pop(\"frameNum\")\n            data1.pop(\"maxTempArea\")\n            data1.pop(\"210TempArea\")\n            data1.pop(\"avgTemp\")\n            nodeData.append(OrderedDict(sorted(data1.items(), key\u003dlambda i:keyorder.index(i[0]))))\n        except:\n            continue\n    return nodeData\n\ndef add_nodes(graph, nodes):\n    for n in nodes:\n        if isinstance(n, tuple):\n            graph.node(n[0], **n[1])\n        else:\n            graph.node(n)\n    return graph\n\ndef add_edges(graph, edges):\n    for e in edges:\n        if isinstance(e[0], tuple):\n            graph.edge(*e[0], **e[1])\n        else:\n            graph.edge(*e)\n    return graph\n\ndef get_png_str(fileName):\n    try:\n        dataUri \u003d open(fileName, \u0027rb\u0027).read().encode(\u0027base64\u0027).replace(\u0027\\n\u0027,\u0027\u0027)\n        imgTag \u003d \u0027data:image/png;base64,\u0027 +dataUri\n        return imgTag\n    except:\n        return fileName\n            \ndef generate_svgs(maxLimit, edgeList, data, workdir):\n    tuplesPy \u003d [] \n    if \"(\" in edgeList[0]: #len(edgeList) \u003e 1: # # or\"\n        for eLine in edgeList:\n            eLine \u003d eLine.replace(\"(\",\"\").replace(\")\",\"\").split(\", \")\n            if eLine[-1] \u003d\u003d \u0027\u0027:\n                eLine \u003d eLine[:-1]\n            for edge in eLine:\n                edge \u003d edge.split(\",\")\n                src \u003d \u0027F\u0027 + edge[0].split(\":\")[0] + \u0027CE\u0027 + edge[0].split(\":\")[1]\n                dest \u003d \u0027F\u0027 + edge[1].split(\":\")[0] + \u0027CE\u0027 + edge[1].split(\":\")[1]\n                tuplesPy.append((src, dest))\n    else:\n        for i in range(0, len(edgeList)-2, 2): #for n in edgeList:\n            src \u003d \u0027F\u0027 + edgeList[i].split(\":\")[0].strip() + \u0027CE\u0027 + edgeList[i].split(\":\")[1].strip()\n            dest \u003d \u0027F\u0027 + edgeList[i+1].split(\":\")[0].strip() + \u0027CE\u0027 + edgeList[i+1].split(\":\")[1].strip()\n            tuplesPy.append((src, dest))\n\n    G \u003d nx.DiGraph(tuplesPy)\n    weakConnComponents \u003d []\n    for w in nx.weakly_connected_component_subgraphs(G):\n        weakConnComponents.append(w.edges())\n\n    # weakConnComponents is sorted by most connected graph based on the \u0027from\u0027 node i.e. most unique Frame numbers in a graph\n    weakConnComponents.sort(key\u003dlambda x: len(collections.Counter(y[0].split(\u0027CE\u0027)[0].split(\u0027F\u0027)[1] for y in x)), reverse\u003dTrue)\n    \n    # iterate through all weakConnComponents here, lay them out one on top of another\n    yPos \u003d 0\n    \n    for i in range(0, int(maxLimit)):\n        nodes \u003d []\n        for edgeTup in weakConnComponents[i]:\n            if not any(filter (lambda x: x[0] \u003d\u003d edgeTup[0], nodes)):\n                nodeAttrDict \u003d filter(lambda thisNode: thisNode[u\u0027nodeID\u0027] \u003d\u003d edgeTup[0], data)[0]\n                #create multiline tooltip dict with all user defined node attributes\n                multiLine \u003d \u0027\u0027\n                tLine \u003d \u0027\u0027\n                for k,v in nodeAttrDict.iteritems():\n                    if k \u003d\u003d \u0027thumbnail\u0027:\n                        tLine +\u003d str(v)\n                    else:\n                        multiLine +\u003d k + \u0027 \u003d \u0027 + str(v) + \u0027\u0026#10;\u0027\n                nodes.append((edgeTup[0], {\u0027tooltip\u0027:multiLine, \u0027image\u0027:tLine, \u0027label\u0027:\"\", }))\n                \n            if not any(filter (lambda x: x[0] \u003d\u003d edgeTup[1], nodes)):\n                nodeAttrDict \u003d filter(lambda thisNode: thisNode[\u0027nodeID\u0027] \u003d\u003d edgeTup[1], data)[0]\n                multiLine \u003d \u0027\u0027\n                tLine \u003d \u0027\u0027\n                for k,v in nodeAttrDict.iteritems():\n                    if k \u003d\u003d \u0027thumbnail\u0027:\n                        tLine +\u003d str(v) \n                    else:\n                        multiLine +\u003d k + \u0027 \u003d \u0027 + str(v) + \u0027\u0026#10;\u0027\n                nodes.append((edgeTup[1], {\u0027tooltip\u0027:multiLine, \u0027image\u0027:tLine, \u0027label\u0027:\"\", })) \n               \n        #add fake node for legend\n        print \"add fake node\"\n        cbPng \u003d workdir + \u0027pngs/colorbar.png\u0027\n        nodes.append((\u0027\u0027, {\u0027shape\u0027:\u0027rectangle\u0027, \u0027image\u0027:cbPng, \u0027imagescale\u0027:\u0027true\u0027, \u0027color\u0027:\u0027white\u0027,\u0027label\u0027:\"\", }))\n        \n        edges \u003d weakConnComponents[i]\n        digraph \u003d functools.partial(gv.Digraph, graph_attr\u003d{\"rankdir\": \"LR\", \"ratio\":\"compress\"}, format\u003d\u0027svg\u0027) #actually creates the graph viz layout \n        print digraph\n        add_edges(add_nodes(digraph(name\u003d\u0027graph\u0027+str(i+1)), nodes), edges).render(workdir+\u0027img/g\u0027 + str(i))\n        \n        # Some cleaning up of the svgs generated for viz purposes.\n        with open(workdir+\u0027img/g{0}.svg\u0027.format(i), \u0027r\u0027) as f:\n            lineStr \u003d f.read()\n            lines \u003d lineStr.splitlines()\n            for line in lines:\n                # Couldn\u0027t get the png to be read into the svg from the dot file.\n                # Attempted adding directly to dot file as HTML string  label\u003d\"\u003cimg src\u003d\u0027data:image/png;base64,\u0027%s\u0027\u003e\" % dataUri\n                # The problems were: (1) the \u003c\u003e were being removed and the \u0027\u0027 were being converted to ASCII ie. \u0026#39; \n                # This dirty solution is to open the generated svg, that is generated from the graphviz dot file where the img is \n                # represented with the image tag and update the URL with the pngStr\n                if \u0027\u003cimage xlink:href\u003d\u0027 in line:\n                    currPng \u003d line.split(\u0027\u003cimage xlink:href\u003d\"\u0027)[1].split(\u0027.png\u0027)[0] + \u0027.png\u0027\n                    pngStr \u003d get_png_str(currPng)\n                    lineStr \u003d lineStr.replace(currPng, pngStr)\n                    \n                # Fix to disable clickablity of \u003ca\u003e tag generated in the svg with the tooltip option in graphViz.\n                # More specificially, the \u003ca\u003e causes the node to be clickable and thus  an empty link is seen by the user. \n                # This dirty fix disables the \u003ca\u003e tag clickability in the generated svg by using HTML \u003ca\u003e option onclick\u003d\"return false;\"\n                if \u0027\u003ca xlink:title\u0027 in line:\n                   lineStr \u003d lineStr.replace(\u0027\u003ca xlink:title\u0027, \u0027\u003ca onclick\u003d\"return false;\" xlink:title\u0027)\n                   \n                # Update as the graph id number is always graph1. TODO: check if this can be done with a flag\n                if \u0027\u003cg id\u003d\"graph1\u0027 in line:\n                   lineStr \u003d lineStr.replace(\u0027\u003cg id\u003d\"graph1\u0027, \u0027\u003cg id\u003d\"graph{0}\u0027.format(i+1))\n\n        with open(workdir+\u0027img/g{0}.svg\u0027.format(i), \u0027w\u0027) as f:\n            f.write(lineStr)\n    \n\ndef draw_sub_graph(numGraphs, graphEdgesVis, data, workdir):\n    generate_svgs(numGraphs, graphEdgesVis, data, workdir)\n    \n    # zoom capablities in D3viz  \n    # TODO: add scrolling bar on x and y axis\n    print \"\"\"%html \n            \u003c!DOCTYPE html\u003e\n            \u003cmeta charset\u003d\"utf-8\"\u003e\n            \n            \u003cbody\u003e\n              \u003cscript src\u003d\"https://d3js.org/d3.v3.min.js\"\u003e\u003c/script\u003e\n              \u003cdiv id\u003d\"container\"\u003e\u003c/div\u003e\n              \u003cscript\u003e\n                \n              function handleClick(cb) {\n        \t    var zoom_id \u003d (cb.id).replace(\u0027z\u0027,\u0027\u0027)\n        \t    console.log(zoom_id);\n        \t    if (document.getElementById(\"z\" + zoom_id).checked) {\n        \t      work(d3.select(\"#graph\" + zoom_id));\n        \t    }else{\n        \t      d3.select(\"#graph\" + zoom_id).on(\"dblclick.zoom\", null).on(\"mousewheel.zoom\", null)\n        \t        .on(\"DOMMouseScroll.zoom\", null)\n        \t        .on(\"wheel.zoom\", null);\n                }\n              }\n           \n              function work(svg) {\n                var w  \u003d d3.transform(svg.attr(\"transform\")).translate[0];\n                var h  \u003d d3.transform(svg.attr(\"transform\")).translate[1];\n                var t \u003d d3.select(\"title\")[0][0];\n        \t    svg.call(d3.behavior.zoom().scaleExtent([1, 8]).on(\"zoom\", zoom));\n        \t    function zoom() {\n        \t\t  var s \u003d d3.event.scale;\n        \t\t  var new_w \u003d w + d3.event.translate[0];\n        \t\t  var new_h \u003d h + d3.event.translate[1];\n        \t\t  svg.attr(\"transform\", \"translate(\" + new_w + \",\" + new_h + \")scale(\" + s + \")\");\n        \t    }\n              }\n              \u003c/script\u003e\n            \u003c/body\u003e\n        \"\"\"\n        \n    #print the graphs\n    for i in range(numGraphs):\n        with open(workdir+\"img/g{0}.svg\".format(i),\"r\") as f:\n            svgData \u003d f.read()\n        \n        print \"\"\"\u003chr\u003e\u003c/br\u003e\"\"\"\n        print \"\"\"\u003clabel\u003e\u003cinput type\u003d\u0027checkbox\u0027 id\u003d\"z{0}\" onclick\u003d\u0027handleClick(this);\u0027\u003eEnable Zooming\u003c/label\u003e\"\"\".format(str(i+1))\n        print svgData",
+      "dateUpdated": "Feb 7, 2017 10:52:46 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486070783268_1489602056",
+      "id": "20170202-132623_1913617165",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": ""
+      },
+      "dateCreated": "Feb 2, 2017 1:26:23 PM",
+      "dateStarted": "Feb 7, 2017 10:50:16 AM",
+      "dateFinished": "Feb 7, 2017 10:50:16 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Get subgraph from a given node",
+      "text": "// get subgraph given  a node\nval my_node \u003d \"2006091122:26\"\nval x \u003d subgraphsRDD.collect()\nvar tnodesList \u003d new mutable.ListBuffer[List[String]] \nfor (i \u003c- x){\n    val nodes \u003d i.flatMap{case(a,b) \u003d\u003e List(a,b)}.toList\n    if (nodes.contains(my_node)) {\n        tnodesList +\u003d nodes \n    } \n}\nval nodesList \u003d tnodesList.toList.flatten\n// send nodesList to python env\nz.put(\"graphEdgesVis\", nodesList.toString)\n\nval subGraphNodeMap \u003d new mutable.HashMap[String, MCSNode]()\nfor (aNode \u003c- nodesList){\n    val thisNode \u003d  MCSNodeMap.get(aNode).get\n    subGraphNodeMap +\u003d (aNode -\u003e thisNode)\n}\nval subGjson \u003d subGraphNodeMap.map{ case(k, v) \u003d\u003e {v.toString()+\"\\n\"}}.reduce(_+_)\n// send subGraphNodeMap to python env\nz.put(\"subGraphsMapPy\", subGjson)",
+      "dateUpdated": "Feb 7, 2017 12:34:11 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "tableHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486145656797_-236188718",
+      "id": "20170203-101416_1196730901",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nmy_node: String \u003d 2006091122:26\nx: Array[scala.collection.mutable.MutableList[(String, String)]] \u003d Array(MutableList((2006091122:26,2006091123:17), (2006091121:2,2006091122:26), (2006091111:12,2006091112:12), (2006091113:9,2006091114:8), (2006091118:4,2006091119:2), (2006091122:26,2006091123:10), (2006091120:4,2006091121:2), (2006091115:11,2006091116:4), (2006091112:13,2006091113:9), (2006091112:15,2006091113:17), (2006091200:10,2006091201:16), (2006091120:4,2006091121:41), (2006091117:9,2006091118:4), (2006091121:2,2006091122:9), (2006091114:18,2006091115:6), (2006091111:13,2006091112:13), (2006091114:12,2006091115:11), (2006091113:17,2006091114:8), (2006091116:15,2006091117:4), (2006091119:2,2006091120:4), (2006091116:3,2006091117:4), (2006091115:6,2006091116:4), (2006091112:14,2006091113:17), (2006091119:2,20060911...\ntnodesList: scala.collection.mutable.ListBuffer[List[String]] \u003d ListBuffer()\nnodesList: List[String] \u003d List(2006091122:26, 2006091123:17, 2006091121:2, 2006091122:26, 2006091111:12, 2006091112:12, 2006091113:9, 2006091114:8, 2006091118:4, 2006091119:2, 2006091122:26, 2006091123:10, 2006091120:4, 2006091121:2, 2006091115:11, 2006091116:4, 2006091112:13, 2006091113:9, 2006091112:15, 2006091113:17, 2006091200:10, 2006091201:16, 2006091120:4, 2006091121:41, 2006091117:9, 2006091118:4, 2006091121:2, 2006091122:9, 2006091114:18, 2006091115:6, 2006091111:13, 2006091112:13, 2006091114:12, 2006091115:11, 2006091113:17, 2006091114:8, 2006091116:15, 2006091117:4, 2006091119:2, 2006091120:4, 2006091116:3, 2006091117:4, 2006091115:6, 2006091116:4, 2006091112:14, 2006091113:17, 2006091119:2, 2006091120:5, 2006091119:14, 2006091120:4, 2006091111:8, 2006091112:11, 2006091116:4,...\nsubGraphNodeMap: scala.collection.mutable.HashMap[String,org.dia.algorithms.mcs.MCSNode] \u003d Map()\n\nsubGjson: String \u003d\n\"{\"frameNum\":2006091112,\"cloudElemNum\":16.0,\"metadata\":{},\"grid\":{\"(101, 151)\":225.0,\"(102, 144)\":211.0,\"(103, 146)\":211.0,\"(97, 146)\":238.0,\"(102, 149)\":239.0,\"(102, 150)\":239.0,\"(101, 147)\":207.0,\"(98, 145)\":219.0,\"(99, 147)\":223.0,\"(100, 148)\":226.0,\"(103, 148)\":229.0,\"(101, 144)\":228.0,\"(102, 146)\":207.0,\"(100, 145)\":226.0,\"(103, 145)\":207.0,\"(104, 147)\":218.0,\"(102, 143)\":222.0,\"(98, 147)\":232.0,\"(101, 150)\":219.0,\"(100, 147)\":213.0,\"(101, 149)\":219.0,\"(99, 146)\":219.0,\"(102, 145)\":205.0,\"(97, 145)\":226.0,\"(103, 147)\":211.0,\"(101, 146)\":208.0,\"(102, 148)\":218.0,\"(103, 144)\":224.0,\"(100, 149)\":229.0,\"(104, 146)\":227.0,\"(101, 143)\":241.0,\"(101, 148)\":216.0,\"(99, 145)\":228.0,\"(102, 151)\":237.0,\"(100, 146)\":214.0,\"(98, 146)\":219.0,\"(101, 145)\":208.0,\"(102, 147)\":207...."
+      },
+      "dateCreated": "Feb 3, 2017 10:14:16 AM",
+      "dateStarted": "Feb 7, 2017 7:32:12 AM",
+      "dateFinished": "Feb 7, 2017 7:32:15 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%pyspark\nworkdir \u003d \u0027/tmp/\u0027\n# get the data from the scala env\nsubGraphNodeMapPy2n \u003d z.get(\"subGraphsMapPy\")\nsubGraphNodeMapPy \u003d subGraphNodeMapPy2n.split(\u0027\\n\u0027)\n\ngraphVizPy2n \u003d z.get(\"graphEdgesVis\")\ngraphVizPy \u003d graphVizPy2n[5:-1].split(\u0027,\u0027)\n\n# get the node metadata\nnodeMetaData \u003d generate_node_data(workdir, subGraphNodeMapPy)\ngenerate_svgs(1, graphVizPy, nodeMetaData, workdir)\ndraw_sub_graph(1, graphVizPy, nodeMetaData, workdir)",
+      "dateUpdated": "Feb 7, 2017 12:34:19 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486475286790_1640902545",
+      "id": "20170207-054806_1596802072",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\n            \u003c!DOCTYPE html\u003e\n            \u003cmeta charset\u003d\"utf-8\"\u003e\n            \u003cbody\u003e\n              \u003cscript src\u003d\"https://d3js.org/d3.v3.min.js\"\u003e\u003c/script\u003e\n              \u003cdiv id\u003d\"container\"\u003e\u003c/div\u003e\n              \u003cscript\u003e\n              function handleClick(cb) {\n        \t    var zoom_id \u003d (cb.id).replace(\u0027z\u0027,\u0027\u0027)\n        \t    console.log(zoom_id);\n        \t    if (document.getElementById(\"z\" + zoom_id).checked) {\n        \t      work(d3.select(\"#graph\" + zoom_id));\n        \t    }else{\n        \t      d3.select(\"#graph\" + zoom_id).on(\"dblclick.zoom\", null).on(\"mousewheel.zoom\", null)\n        \t        .on(\"DOMMouseScroll.zoom\", null)\n        \t        .on(\"wheel.zoom\", null);\n                }\n              }\n              function work(svg) {\n                var w  \u003d d3.transform(svg.attr(\"transform\")).translate[0];\n                var h  \u003d d3.transform(svg.attr(\"transform\")).translate[1];\n                var t \u003d d3.select(\"title\")[0][0];\n        \t    svg.call(d3.behavior.zoom().scaleExtent([1, 8]).on(\"zoom\", zoom));\n        \t    function zoom() {\n        \t\t  var s \u003d d3.event.scale;\n        \t\t  var new_w \u003d w + d3.event.translate[0];\n        \t\t  var new_h \u003d h + d3.event.translate[1];\n        \t\t  svg.attr(\"transform\", \"translate(\" + new_w + \",\" + new_h + \")scale(\" + s + \")\");\n        \t    }\n              }\n              \u003c/script\u003e\n            \u003c/body\u003e\n        \n\u003chr\u003e\u003c/br\u003e\n\u003clabel\u003e\u003cinput type\u003d\u0027checkbox\u0027 id\u003d\"z1\" onclick\u003d\u0027handleClick(this);\u0027\u003eEnable Zooming\u003c/label\u003e\n\u003c?xml version\u003d\"1.0\" encoding\u003d\"UTF-8\" standalone\u003d\"no\"?\u003e\n\u003c!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\"\u003e\n\u003c!-- Generated by graphviz version 2.38.0 (20140413.2041)\n --\u003e\n\u003c!-- Title: graph1 Pages: 1 --\u003e\n\u003csvg width\u003d\"1945pt\" height\u003d\"328pt\"\n viewBox\u003d\"0.00 0.00 1945.00 328.00\" xmlns\u003d\"http://www.w3.org/2000/svg\" xmlns:xlink\u003d\"http://www.w3.org/1999/xlink\"\u003e\n\u003cg id\u003d\"graph0\" class\u003d\"graph\" transform\u003d\"scale(1 1) rotate(0) translate(4 324)\"\u003e\n\u003ctitle\u003egraph1\u003c/title\u003e\n\u003cpolygon fill\u003d\"white\" stroke\u003d\"none\" points\u003d\"-4,4 -4,-324 1941,-324 1941,4 -4,4\"/\u003e\n\u003c!-- F2006091123CE10 --\u003e\n\u003cg id\u003d\"node1\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091123CE10\u003c/title\u003e\n\u003cg id\u003d\"a_node1\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091123CE10\u0026#10;centerLat \u003d 14.2589054108\u0026#10;centerLon \u003d \u0026#45;3.45593106747\u0026#10;area \u003d 1320.0\u0026#10;minTemp \u003d 211.0\u0026#10;minAreaTemp \u003d 212.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.3675050735\u0026#10;latMax \u003d 15.150305748\u0026#10;lonMin \u003d \u0026#45;4.34720039368\u0026#10;lonMax \u003d \u0026#45;2.56466174126\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1730\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091200CE10 --\u003e\n\u003cg id\u003d\"node2\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091200CE10\u003c/title\u003e\n\u003cg id\u003d\"a_node2\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091200CE10\u0026#10;centerLat \u003d 14.2952890396\u0026#10;centerLon \u003d \u0026#45;3.74695765972\u0026#10;area \u003d 761.0\u0026#10;minTemp \u003d 213.0\u0026#10;minAreaTemp \u003d 218.0\u0026#10;minTempArea \u003d 29.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.3311214447\u0026#10;latMax \u003d 15.2594566345\u0026#10;lonMin \u003d \u0026#45;4.49271345139\u0026#10;lonMax \u003d \u0026#45;3.00120186806\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1820\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091123CE10\u0026#45;\u0026gt;F2006091200CE10 --\u003e\n\u003cg id\u003d\"edge1\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091123CE10\u0026#45;\u0026gt;F2006091200CE10\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1757.4,-180C1765.39,-180 1774.31,-180 1782.82,-180\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1782.92,-183.5 1792.92,-180 1782.92,-176.5 1782.92,-183.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091201CE16 --\u003e\n\u003cg id\u003d\"node37\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091201CE16\u003c/title\u003e\n\u003cg id\u003d\"a_node37\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091201CE16\u0026#10;centerLat \u003d 15.0229625702\u0026#10;centerLon \u003d \u0026#45;3.67420089245\u0026#10;area \u003d 284.0\u0026#10;minTemp \u003d 220.0\u0026#10;minAreaTemp \u003d 223.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.5317831039\u0026#10;latMax \u003d 15.5141420364\u0026#10;lonMin \u003d \u0026#45;4.09255170822\u0026#10;lonMax \u003d \u0026#45;3.25585007668\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1910\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091200CE10\u0026#45;\u0026gt;F2006091201CE16 --\u003e\n\u003cg id\u003d\"edge36\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091200CE10\u0026#45;\u0026gt;F2006091201CE16\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1847.4,-180C1855.39,-180 1864.31,-180 1872.82,-180\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1872.92,-183.5 1882.92,-180 1872.92,-176.5 1872.92,-183.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091117CE9 --\u003e\n\u003cg id\u003d\"node3\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091117CE9\u003c/title\u003e\n\u003cg id\u003d\"a_node3\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091117CE9\u0026#10;centerLat \u003d 14.2407131195\u0026#10;centerLon \u003d \u0026#45;2.78293180466\u0026#10;area \u003d 43.0\u0026#10;minTemp \u003d 199.0\u0026#10;minAreaTemp \u003d 211.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.131562233\u0026#10;latMax \u003d 14.349864006\u0026#10;lonMin \u003d \u0026#45;2.89206671715\u0026#10;lonMax \u003d \u0026#45;2.67379689217\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1190\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE4 --\u003e\n\u003cg id\u003d\"node4\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091118CE4\u003c/title\u003e\n\u003cg id\u003d\"a_node4\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091118CE4\u0026#10;centerLat \u003d 14.6955094337\u0026#10;centerLon \u003d \u0026#45;3.1649042964\u0026#10;area \u003d 9011.0\u0026#10;minTemp \u003d 195.0\u0026#10;minAreaTemp \u003d 197.0\u0026#10;minTempArea \u003d 27.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.4215288162\u0026#10;latMax \u003d 16.9694900513\u0026#10;lonMin \u003d \u0026#45;5.6204419136\u0026#10;lonMax \u003d \u0026#45;0.709366679192\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1280\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091117CE9\u0026#45;\u0026gt;F2006091118CE4 --\u003e\n\u003cg id\u003d\"edge2\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091117CE9\u0026#45;\u0026gt;F2006091118CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1217.4,-72C1225.39,-72 1234.31,-72 1242.82,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1242.92,-75.5001 1252.92,-72 1242.92,-68.5001 1242.92,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE2 --\u003e\n\u003cg id\u003d\"node30\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091119CE2\u003c/title\u003e\n\u003cg id\u003d\"a_node30\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091119CE2\u0026#10;centerLat \u003d 14.5863585472\u0026#10;centerLon \u003d \u0026#45;2.43733757734\u0026#10;area \u003d 10568.0\u0026#10;minTemp \u003d 195.0\u0026#10;minAreaTemp \u003d 201.0\u0026#10;minTempArea \u003d 55.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.2032270432\u0026#10;latMax \u003d 16.9694900513\u0026#10;lonMin \u003d \u0026#45;5.58406352997\u0026#10;lonMax \u003d 0.709388375282\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1370\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE4\u0026#45;\u0026gt;F2006091119CE2 --\u003e\n\u003cg id\u003d\"edge23\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091118CE4\u0026#45;\u0026gt;F2006091119CE2\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1307.4,-72C1315.39,-72 1324.31,-72 1332.82,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1332.92,-75.5001 1342.92,-72 1332.92,-68.5001 1332.92,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE4 --\u003e\n\u003cg id\u003d\"node5\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091116CE4\u003c/title\u003e\n\u003cg id\u003d\"a_node5\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091116CE4\u0026#10;centerLat \u003d 14.6227421761\u0026#10;centerLon \u003d \u0026#45;1.74614936113\u0026#10;area \u003d 7852.0\u0026#10;minTemp \u003d 193.0\u0026#10;minAreaTemp \u003d 198.0\u0026#10;minTempArea \u003d 43.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.6034479141\u0026#10;latMax \u003d 16.642036438\u0026#10;lonMin \u003d \u0026#45;4.7109837532\u0026#10;lonMax \u003d 1.21868503094\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1100\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE4\u0026#45;\u0026gt;F2006091117CE9 --\u003e\n\u003cg id\u003d\"edge4\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091116CE4\u0026#45;\u0026gt;F2006091117CE9\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1127.4,-72C1135.39,-72 1144.31,-72 1152.82,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1152.92,-75.5001 1162.92,-72 1152.92,-68.5001 1152.92,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091117CE4 --\u003e\n\u003cg id\u003d\"node6\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091117CE4\u003c/title\u003e\n\u003cg id\u003d\"a_node6\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091117CE4\u0026#10;centerLat \u003d 14.6409339905\u0026#10;centerLon \u003d \u0026#45;2.12812173367\u0026#10;area \u003d 9995.0\u0026#10;minTemp \u003d 189.0\u0026#10;minAreaTemp \u003d 196.0\u0026#10;minTempArea \u003d 24.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.3851451874\u0026#10;latMax \u003d 16.8967227936\u0026#10;lonMin \u003d \u0026#45;5.22028017044\u0026#10;lonMax \u003d 0.96403670311\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1190\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE4\u0026#45;\u0026gt;F2006091117CE4 --\u003e\n\u003cg id\u003d\"edge3\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091116CE4\u0026#45;\u0026gt;F2006091117CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1120.53,-83.9844C1132.38,-91.2552 1147.7,-100.656 1160.84,-108.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1159.17,-111.802 1169.52,-114.049 1162.83,-105.836 1159.17,-111.802\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091117CE4\u0026#45;\u0026gt;F2006091118CE4 --\u003e\n\u003cg id\u003d\"edge31\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091117CE4\u0026#45;\u0026gt;F2006091118CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1210.53,-114.016C1222.38,-106.745 1237.7,-97.3438 1250.84,-89.2785\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1252.83,-92.1642 1259.52,-83.9508 1249.17,-86.1979 1252.83,-92.1642\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE3 --\u003e\n\u003cg id\u003d\"node29\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091118CE3\u003c/title\u003e\n\u003cg id\u003d\"a_node29\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091118CE3\u0026#10;centerLat \u003d 13.294737339\u0026#10;centerLon \u003d \u0026#45;0.109124153852\u0026#10;area \u003d 2358.0\u0026#10;minTemp \u003d 197.0\u0026#10;minAreaTemp \u003d 199.0\u0026#10;minTempArea \u003d 28.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.1668434143\u0026#10;latMax \u003d 14.4226312637\u0026#10;lonMin \u003d \u0026#45;1.07315003872\u0026#10;lonMax \u003d 0.854901731014\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1280\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091117CE4\u0026#45;\u0026gt;F2006091118CE3 --\u003e\n\u003cg id\u003d\"edge30\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091117CE4\u0026#45;\u0026gt;F2006091118CE3\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1217.4,-126C1225.39,-126 1234.31,-126 1242.82,-126\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1242.92,-129.5 1252.92,-126 1242.92,-122.5 1242.92,-129.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE3 --\u003e\n\u003cg id\u003d\"node7\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091116CE3\u003c/title\u003e\n\u003cg id\u003d\"a_node7\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091116CE3\u0026#10;centerLat \u003d 12.5306801796\u0026#10;centerLon \u003d 0.927658379078\u0026#10;area \u003d 51.0\u0026#10;minTemp \u003d 210.0\u0026#10;minAreaTemp \u003d 215.0\u0026#10;minTempArea \u003d 17.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.3851451874\u0026#10;latMax \u003d 12.6762151718\u0026#10;lonMin \u003d 0.782145023346\u0026#10;lonMax \u003d 1.07317173481\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1100\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE3\u0026#45;\u0026gt;F2006091117CE4 --\u003e\n\u003cg id\u003d\"edge5\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091116CE3\u0026#45;\u0026gt;F2006091117CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1120.53,-168.016C1132.38,-160.745 1147.7,-151.344 1160.84,-143.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1162.83,-146.164 1169.52,-137.951 1159.17,-140.198 1162.83,-146.164\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091120CE4 --\u003e\n\u003cg id\u003d\"node8\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091120CE4\u003c/title\u003e\n\u003cg id\u003d\"a_node8\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091120CE4\u0026#10;centerLat \u003d 14.5135912895\u0026#10;centerLon \u003d \u0026#45;3.01939101983\u0026#10;area \u003d 7866.0\u0026#10;minTemp \u003d 200.0\u0026#10;minAreaTemp \u003d 202.0\u0026#10;minTempArea \u003d 26.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.0576925278\u0026#10;latMax \u003d 16.9694900513\u0026#10;lonMin \u003d \u0026#45;6.05698204041\u0026#10;lonMax \u003d 0.018200000748\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1460\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091121CE41 --\u003e\n\u003cg id\u003d\"node9\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091121CE41\u003c/title\u003e\n\u003cg id\u003d\"a_node9\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091121CE41\u0026#10;centerLat \u003d 16.0235137939\u0026#10;centerLon \u003d \u0026#45;4.94744277\u0026#10;area \u003d 205.0\u0026#10;minTemp \u003d 229.0\u0026#10;minAreaTemp \u003d 232.0\u0026#10;minTempArea \u003d 31.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 15.623292923\u0026#10;latMax \u003d 16.4237346649\u0026#10;lonMin \u003d \u0026#45;5.25665855408\u0026#10;lonMax \u003d \u0026#45;4.63822698593\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1550\" cy\u003d\"-153\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091120CE4\u0026#45;\u0026gt;F2006091121CE41 --\u003e\n\u003cg id\u003d\"edge6\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091120CE4\u0026#45;\u0026gt;F2006091121CE41\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1485.05,-133.378C1494.44,-136.259 1505.36,-139.611 1515.5,-142.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1514.7,-146.137 1525.29,-145.725 1516.75,-139.445 1514.7,-146.137\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091121CE2 --\u003e\n\u003cg id\u003d\"node10\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091121CE2\u003c/title\u003e\n\u003cg id\u003d\"a_node10\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091121CE2\u0026#10;centerLat \u003d 14.3498644829\u0026#10;centerLon \u003d \u0026#45;3.23766094446\u0026#10;area \u003d 4885.0\u0026#10;minTemp \u003d 204.0\u0026#10;minAreaTemp \u003d 204.0\u0026#10;minTempArea \u003d 24.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.1304597855\u0026#10;latMax \u003d 16.5692691803\u0026#10;lonMin \u003d \u0026#45;5.9478468895\u0026#10;lonMax \u003d \u0026#45;0.527474999428\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1550\" cy\u003d\"-99\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091120CE4\u0026#45;\u0026gt;F2006091121CE2 --\u003e\n\u003cg id\u003d\"edge7\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091120CE4\u0026#45;\u0026gt;F2006091121CE2\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1485.05,-118.622C1494.44,-115.741 1505.36,-112.389 1515.5,-109.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1516.75,-112.555 1525.29,-106.275 1514.7,-105.863 1516.75,-112.555\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091122CE26 --\u003e\n\u003cg id\u003d\"node17\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091122CE26\u003c/title\u003e\n\u003cg id\u003d\"a_node17\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091122CE26\u0026#10;centerLat \u003d 14.313480854\u0026#10;centerLon \u003d \u0026#45;4.31082189083\u0026#10;area \u003d 2324.0\u0026#10;minTemp \u003d 207.0\u0026#10;minAreaTemp \u003d 208.0\u0026#10;minTempArea \u003d 34.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.4402723312\u0026#10;latMax \u003d 15.1866893768\u0026#10;lonMin \u003d \u0026#45;5.98422527313\u0026#10;lonMax \u003d \u0026#45;2.63741850853\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1640\" cy\u003d\"-153\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091121CE2\u0026#45;\u0026gt;F2006091122CE26 --\u003e\n\u003cg id\u003d\"edge40\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091121CE2\u0026#45;\u0026gt;F2006091122CE26\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1570.53,-110.984C1582.38,-118.255 1597.7,-127.656 1610.84,-135.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1609.17,-138.802 1619.52,-141.049 1612.83,-132.836 1609.17,-138.802\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091122CE9 --\u003e\n\u003cg id\u003d\"node40\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091122CE9\u003c/title\u003e\n\u003cg id\u003d\"a_node40\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091122CE9\u0026#10;centerLat \u003d 12.8217496872\u0026#10;centerLon \u003d \u0026#45;1.72796005011\u0026#10;area \u003d 166.0\u0026#10;minTemp \u003d 221.0\u0026#10;minAreaTemp \u003d 227.0\u0026#10;minTempArea \u003d 19.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.4579124451\u0026#10;latMax \u003d 13.1855869293\u0026#10;lonMin \u003d \u0026#45;2.01898670197\u0026#10;lonMax \u003d \u0026#45;1.43693339825\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1640\" cy\u003d\"-99\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091121CE2\u0026#45;\u0026gt;F2006091122CE9 --\u003e\n\u003cg id\u003d\"edge41\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091121CE2\u0026#45;\u0026gt;F2006091122CE9\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1577.4,-99C1585.39,-99 1594.31,-99 1602.82,-99\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1602.92,-102.5 1612.92,-99 1602.92,-95.5001 1602.92,-102.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091122CE13 --\u003e\n\u003cg id\u003d\"node41\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091122CE13\u003c/title\u003e\n\u003cg id\u003d\"a_node41\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091122CE13\u0026#10;centerLat \u003d 12.9309010506\u0026#10;centerLon \u003d \u0026#45;2.36458098888\u0026#10;area \u003d 362.0\u0026#10;minTemp \u003d 219.0\u0026#10;minAreaTemp \u003d 222.0\u0026#10;minTempArea \u003d 24.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.5670642853\u0026#10;latMax \u003d 13.2947378159\u0026#10;lonMin \u003d \u0026#45;2.81931018829\u0026#10;lonMax \u003d \u0026#45;1.90985178947\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1640\" cy\u003d\"-45\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091121CE2\u0026#45;\u0026gt;F2006091122CE13 --\u003e\n\u003cg id\u003d\"edge42\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091121CE2\u0026#45;\u0026gt;F2006091122CE13\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1570.53,-87.0156C1582.38,-79.7448 1597.7,-70.3438 1610.84,-62.2785\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1612.83,-65.1642 1619.52,-56.9508 1609.17,-59.1979 1612.83,-65.1642\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE10 --\u003e\n\u003cg id\u003d\"node11\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091118CE10\u003c/title\u003e\n\u003cg id\u003d\"a_node11\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091118CE10\u0026#10;centerLat \u003d 14.4044399261\u0026#10;centerLon \u003d \u0026#45;5.07476687431\u0026#10;area \u003d 21.0\u0026#10;minTemp \u003d 210.0\u0026#10;minAreaTemp \u003d 225.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.3134803772\u0026#10;latMax \u003d 14.4953994751\u0026#10;lonMin \u003d \u0026#45;5.14752340317\u0026#10;lonMax \u003d \u0026#45;5.00201034546\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1280\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE14 --\u003e\n\u003cg id\u003d\"node12\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091119CE14\u003c/title\u003e\n\u003cg id\u003d\"a_node12\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091119CE14\u0026#10;centerLat \u003d 14.4590153694\u0026#10;centerLon \u003d \u0026#45;5.25665855408\u0026#10;area \u003d 190.0\u0026#10;minTemp \u003d 197.0\u0026#10;minAreaTemp \u003d 198.0\u0026#10;minTempArea \u003d 17.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.1679458618\u0026#10;latMax \u003d 14.750084877\u0026#10;lonMin \u003d \u0026#45;5.5113067627\u0026#10;lonMax \u003d \u0026#45;5.00201034546\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1370\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE10\u0026#45;\u0026gt;F2006091119CE14 --\u003e\n\u003cg id\u003d\"edge8\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091118CE10\u0026#45;\u0026gt;F2006091119CE14\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1307.4,-180C1315.39,-180 1324.31,-180 1332.82,-180\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1332.92,-183.5 1342.92,-180 1332.92,-176.5 1332.92,-183.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE14\u0026#45;\u0026gt;F2006091120CE4 --\u003e\n\u003cg id\u003d\"edge39\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091119CE14\u0026#45;\u0026gt;F2006091120CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1390.53,-168.016C1402.38,-160.745 1417.7,-151.344 1430.84,-143.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1432.83,-146.164 1439.52,-137.951 1429.17,-140.198 1432.83,-146.164\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE19 --\u003e\n\u003cg id\u003d\"node13\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091113CE19\u003c/title\u003e\n\u003cg id\u003d\"a_node13\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091113CE19\u0026#10;centerLat \u003d 15.7324442863\u0026#10;centerLon \u003d \u0026#45;2.85568845272\u0026#10;area \u003d 392.0\u0026#10;minTemp \u003d 199.0\u0026#10;minAreaTemp \u003d 203.0\u0026#10;minTempArea \u003d 37.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 15.3686075211\u0026#10;latMax \u003d 16.0962810516\u0026#10;lonMin \u003d \u0026#45;3.32860684395\u0026#10;lonMax \u003d \u0026#45;2.38277006149\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"830\" cy\u003d\"-288\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE8 --\u003e\n\u003cg id\u003d\"node14\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091114CE8\u003c/title\u003e\n\u003cg id\u003d\"a_node14\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091114CE8\u0026#10;centerLat \u003d 14.5317831039\u0026#10;centerLon \u003d \u0026#45;1.72796012461\u0026#10;area \u003d 3994.0\u0026#10;minTemp \u003d 190.0\u0026#10;minAreaTemp \u003d 194.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.9309005737\u0026#10;latMax \u003d 16.1326656342\u0026#10;lonMin \u003d \u0026#45;3.72876858711\u0026#10;lonMax \u003d 0.272848337889\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"920\" cy\u003d\"-180\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE19\u0026#45;\u0026gt;F2006091114CE8 --\u003e\n\u003cg id\u003d\"edge9\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091113CE19\u0026#45;\u0026gt;F2006091114CE8\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M843.985,-272.064C858.692,-254.015 882.805,-224.421 899.713,-203.67\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"902.645,-205.613 906.248,-195.65 897.218,-201.192 902.645,-205.613\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE6 --\u003e\n\u003cg id\u003d\"node21\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091115CE6\u003c/title\u003e\n\u003cg id\u003d\"a_node21\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091115CE6\u0026#10;centerLat \u003d 14.6591253281\u0026#10;centerLon \u003d \u0026#45;2.03717602789\u0026#10;area \u003d 5863.0\u0026#10;minTemp \u003d 188.0\u0026#10;minAreaTemp \u003d 195.0\u0026#10;minTempArea \u003d 52.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.7853660583\u0026#10;latMax \u003d 16.5328845978\u0026#10;lonMin \u003d \u0026#45;4.34720039368\u0026#10;lonMax \u003d 0.272848337889\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1010\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE8\u0026#45;\u0026gt;F2006091115CE6 --\u003e\n\u003cg id\u003d\"edge33\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091114CE8\u0026#45;\u0026gt;F2006091115CE6\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M940.53,-168.016C952.379,-160.745 967.699,-151.344 980.842,-143.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"982.832,-146.164 989.525,-137.951 979.171,-140.198 982.832,-146.164\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE17 --\u003e\n\u003cg id\u003d\"node15\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091113CE17\u003c/title\u003e\n\u003cg id\u003d\"a_node15\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091113CE17\u0026#10;centerLat \u003d 14.877427578\u0026#10;centerLon \u003d \u0026#45;2.25544595718\u0026#10;area \u003d 428.0\u0026#10;minTemp \u003d 199.0\u0026#10;minAreaTemp \u003d 203.0\u0026#10;minTempArea \u003d 28.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.4226312637\u0026#10;latMax \u003d 15.3322238922\u0026#10;lonMin \u003d \u0026#45;2.78293180466\u0026#10;lonMax \u003d \u0026#45;1.72796010971\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"830\" cy\u003d\"-207\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE17\u0026#45;\u0026gt;F2006091114CE8 --\u003e\n\u003cg id\u003d\"edge10\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091113CE17\u0026#45;\u0026gt;F2006091114CE8\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M855.046,-199.622C864.435,-196.741 875.362,-193.389 885.5,-190.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"886.754,-193.555 895.287,-187.275 884.701,-186.863 886.754,-193.555\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE13 --\u003e\n\u003cg id\u003d\"node16\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091113CE13\u003c/title\u003e\n\u003cg id\u003d\"a_node16\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091113CE13\u0026#10;centerLat \u003d 13.2765460014\u0026#10;centerLon \u003d 0.0909566702321\u0026#10;area \u003d 41.0\u0026#10;minTemp \u003d 198.0\u0026#10;minAreaTemp \u003d 218.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 240.0\u0026#10;latMin \u003d 13.1492033005\u0026#10;latMax \u003d 13.4038887024\u0026#10;lonMin \u003d \u0026#45;0.0181783344597\u0026#10;lonMax \u003d 0.200091674924\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"830\" cy\u003d\"-153\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE13\u0026#45;\u0026gt;F2006091114CE8 --\u003e\n\u003cg id\u003d\"edge11\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091113CE13\u0026#45;\u0026gt;F2006091114CE8\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M855.046,-160.378C864.435,-163.259 875.362,-166.611 885.5,-169.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"884.701,-173.137 895.287,-172.725 886.754,-166.445 884.701,-173.137\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091122CE26\u0026#45;\u0026gt;F2006091123CE10 --\u003e\n\u003cg id\u003d\"edge13\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091122CE26\u0026#45;\u0026gt;F2006091123CE10\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1665.05,-160.378C1674.44,-163.259 1685.36,-166.611 1695.5,-169.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1694.7,-173.137 1705.29,-172.725 1696.75,-166.445 1694.7,-173.137\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091123CE17 --\u003e\n\u003cg id\u003d\"node18\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091123CE17\u003c/title\u003e\n\u003cg id\u003d\"a_node18\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091123CE17\u0026#10;centerLat \u003d 14.7137012482\u0026#10;centerLon \u003d \u0026#45;5.20209097862\u0026#10;area \u003d 166.0\u0026#10;minTemp \u003d 220.0\u0026#10;minAreaTemp \u003d 224.0\u0026#10;minTempArea \u003d 20.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.2770967484\u0026#10;latMax \u003d 15.150305748\u0026#10;lonMin \u003d \u0026#45;5.47492837906\u0026#10;lonMax \u003d \u0026#45;4.92925357819\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1730\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091122CE26\u0026#45;\u0026gt;F2006091123CE17 --\u003e\n\u003cg id\u003d\"edge12\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091122CE26\u0026#45;\u0026gt;F2006091123CE17\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1665.05,-145.622C1674.44,-142.741 1685.36,-139.389 1695.5,-136.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1696.75,-139.555 1705.29,-133.275 1694.7,-132.863 1696.75,-139.555\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE9 --\u003e\n\u003cg id\u003d\"node19\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091113CE9\u003c/title\u003e\n\u003cg id\u003d\"a_node19\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091113CE9\u0026#10;centerLat \u003d 14.0042190552\u0026#10;centerLon \u003d \u0026#45;1.01858255267\u0026#10;area \u003d 1469.0\u0026#10;minTemp \u003d 191.0\u0026#10;minAreaTemp \u003d 197.0\u0026#10;minTempArea \u003d 27.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.9672842026\u0026#10;latMax \u003d 15.0411539078\u0026#10;lonMin \u003d \u0026#45;1.80071675777\u0026#10;lonMax \u003d \u0026#45;0.236448347569\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"830\" cy\u003d\"-86\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091113CE9\u0026#45;\u0026gt;F2006091114CE8 --\u003e\n\u003cg id\u003d\"edge14\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091113CE9\u0026#45;\u0026gt;F2006091114CE8\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M844.95,-101.247C857.46,-114.88 876.355,-135.368 893,-153 894.374,-154.455 895.792,-155.95 897.226,-157.455\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"894.926,-160.113 904.371,-164.914 899.981,-155.271 894.926,-160.113\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE18 --\u003e\n\u003cg id\u003d\"node20\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091114CE18\u003c/title\u003e\n\u003cg id\u003d\"a_node20\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091114CE18\u0026#10;centerLat \u003d 16.2782001495\u0026#10;centerLon \u003d \u0026#45;3.56506597996\u0026#10;area \u003d 23.0\u0026#10;minTemp \u003d 212.0\u0026#10;minAreaTemp \u003d 231.0\u0026#10;minTempArea \u003d 17.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 16.2054328918\u0026#10;latMax \u003d 16.3509674072\u0026#10;lonMin \u003d \u0026#45;3.65601181984\u0026#10;lonMax \u003d \u0026#45;3.47412014008\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"920\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE18\u0026#45;\u0026gt;F2006091115CE6 --\u003e\n\u003cg id\u003d\"edge15\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091114CE18\u0026#45;\u0026gt;F2006091115CE6\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M947.403,-126C955.393,-126 964.311,-126 972.824,-126\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"972.919,-129.5 982.919,-126 972.919,-122.5 972.919,-129.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE6\u0026#45;\u0026gt;F2006091116CE4 --\u003e\n\u003cg id\u003d\"edge35\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091115CE6\u0026#45;\u0026gt;F2006091116CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1030.53,-114.016C1042.38,-106.745 1057.7,-97.3438 1070.84,-89.2785\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1072.83,-92.1642 1079.52,-83.9508 1069.17,-86.1979 1072.83,-92.1642\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE11 --\u003e\n\u003cg id\u003d\"node22\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE11\u003c/title\u003e\n\u003cg id\u003d\"a_node22\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE11\u0026#10;centerLat \u003d 13.6221909523\u0026#10;centerLon \u003d \u0026#45;0.836690887809\u0026#10;area \u003d 334.0\u0026#10;minTemp \u003d 202.0\u0026#10;minAreaTemp \u003d 204.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.2947378159\u0026#10;latMax \u003d 13.9496440887\u0026#10;lonMin \u003d \u0026#45;1.36417675018\u0026#10;lonMax \u003d \u0026#45;0.309205025434\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-140\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE11\u0026#45;\u0026gt;F2006091113CE9 --\u003e\n\u003cg id\u003d\"edge16\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE11\u0026#45;\u0026gt;F2006091113CE9\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M760.53,-128.016C772.379,-120.745 787.699,-111.344 800.842,-103.279\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"802.832,-106.164 809.525,-97.9508 799.171,-100.198 802.832,-106.164\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE12 --\u003e\n\u003cg id\u003d\"node23\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE12\u003c/title\u003e\n\u003cg id\u003d\"a_node23\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE12\u0026#10;centerLat \u003d 14.3680562973\u0026#10;centerLon \u003d \u0026#45;1.25504174829\u0026#10;area \u003d 169.0\u0026#10;minTemp \u003d 197.0\u0026#10;minAreaTemp \u003d 203.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.0951786041\u0026#10;latMax \u003d 14.6409339905\u0026#10;lonMin \u003d \u0026#45;1.54606842995\u0026#10;lonMax \u003d \u0026#45;0.964015066624\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-86\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE12\u0026#45;\u0026gt;F2006091113CE9 --\u003e\n\u003cg id\u003d\"edge17\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE12\u0026#45;\u0026gt;F2006091113CE9\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M767.403,-86C775.393,-86 784.311,-86 792.824,-86\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"792.919,-89.5001 802.919,-86 792.919,-82.5001 792.919,-89.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE13 --\u003e\n\u003cg id\u003d\"node24\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE13\u003c/title\u003e\n\u003cg id\u003d\"a_node24\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE13\u0026#10;centerLat \u003d 14.6045498848\u0026#10;centerLon \u003d \u0026#45;0.854880064726\u0026#10;area \u003d 141.0\u0026#10;minTemp \u003d 203.0\u0026#10;minAreaTemp \u003d 208.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 240.0\u0026#10;latMin \u003d 14.349864006\u0026#10;latMax \u003d 14.8592357635\u0026#10;lonMin \u003d \u0026#45;1.10952842236\u0026#10;lonMax \u003d \u0026#45;0.600231707096\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-32\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE13\u0026#45;\u0026gt;F2006091113CE9 --\u003e\n\u003cg id\u003d\"edge18\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE13\u0026#45;\u0026gt;F2006091113CE9\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M760.53,-43.9844C772.379,-51.2552 787.699,-60.6562 800.842,-68.7215\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"799.171,-71.8021 809.525,-74.0492 802.832,-65.8358 799.171,-71.8021\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE12 --\u003e\n\u003cg id\u003d\"node25\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091114CE12\u003c/title\u003e\n\u003cg id\u003d\"a_node25\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091114CE12\u0026#10;centerLat \u003d 13.6767663956\u0026#10;centerLon \u003d 1.10955005884\u0026#10;area \u003d 47.0\u0026#10;minTemp \u003d 201.0\u0026#10;minAreaTemp \u003d 205.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 240.0\u0026#10;latMin \u003d 13.5494232178\u0026#10;latMax \u003d 13.8041095734\u0026#10;lonMin \u003d 1.00041508675\u0026#10;lonMax \u003d 1.21868503094\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"920\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE11 --\u003e\n\u003cg id\u003d\"node26\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091115CE11\u003c/title\u003e\n\u003cg id\u003d\"a_node26\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091115CE11\u0026#10;centerLat \u003d 13.6585745811\u0026#10;centerLon \u003d 1.18230670691\u0026#10;area \u003d 179.0\u0026#10;minTemp \u003d 205.0\u0026#10;minAreaTemp \u003d 207.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.3675050735\u0026#10;latMax \u003d 13.9496440887\u0026#10;lonMin \u003d 0.891280055046\u0026#10;lonMax \u003d 1.47333335876\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1010\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE12\u0026#45;\u0026gt;F2006091115CE11 --\u003e\n\u003cg id\u003d\"edge19\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091114CE12\u0026#45;\u0026gt;F2006091115CE11\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M947.403,-72C955.393,-72 964.311,-72 972.824,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"972.919,-75.5001 982.919,-72 972.919,-68.5001 972.919,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE11\u0026#45;\u0026gt;F2006091116CE4 --\u003e\n\u003cg id\u003d\"edge24\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091115CE11\u0026#45;\u0026gt;F2006091116CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1037.4,-72C1045.39,-72 1054.31,-72 1062.82,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1062.92,-75.5001 1072.92,-72 1062.92,-68.5001 1062.92,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE13 --\u003e\n\u003cg id\u003d\"node27\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091114CE13\u003c/title\u003e\n\u003cg id\u003d\"a_node27\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091114CE13\u0026#10;centerLat \u003d 13.7859172821\u0026#10;centerLon \u003d 1.43695509434\u0026#10;area \u003d 23.0\u0026#10;minTemp \u003d 201.0\u0026#10;minAreaTemp \u003d 217.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 236.0\u0026#10;latMin \u003d 13.6949577332\u0026#10;latMax \u003d 13.8768768311\u0026#10;lonMin \u003d 1.36419844627\u0026#10;lonMax \u003d 1.5097117424\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"920\" cy\u003d\"-18\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091114CE13\u0026#45;\u0026gt;F2006091115CE11 --\u003e\n\u003cg id\u003d\"edge20\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091114CE13\u0026#45;\u0026gt;F2006091115CE11\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M940.53,-29.9844C952.379,-37.2552 967.699,-46.6562 980.842,-54.7215\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"979.171,-57.8021 989.525,-60.0492 982.832,-51.8358 979.171,-57.8021\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE16 --\u003e\n\u003cg id\u003d\"node28\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE16\u003c/title\u003e\n\u003cg id\u003d\"a_node28\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE16\u0026#10;centerLat \u003d 15.6778688431\u0026#10;centerLon \u003d \u0026#45;2.63741850853\u0026#10;area \u003d 38.0\u0026#10;minTemp \u003d 205.0\u0026#10;minAreaTemp \u003d 219.0\u0026#10;minTempArea \u003d 20.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 15.5505256653\u0026#10;latMax \u003d 15.8052120209\u0026#10;lonMin \u003d \u0026#45;2.78293180466\u0026#10;lonMax \u003d \u0026#45;2.4919052124\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-302\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE16\u0026#45;\u0026gt;F2006091113CE19 --\u003e\n\u003cg id\u003d\"edge21\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE16\u0026#45;\u0026gt;F2006091113CE19\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M766.453,-297.951C774.936,-296.601 784.544,-295.072 793.64,-293.625\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"794.278,-297.068 803.604,-292.04 793.178,-290.155 794.278,-297.068\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091118CE3\u0026#45;\u0026gt;F2006091119CE2 --\u003e\n\u003cg id\u003d\"edge22\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091118CE3\u0026#45;\u0026gt;F2006091119CE2\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1300.53,-114.016C1312.38,-106.745 1327.7,-97.3438 1340.84,-89.2785\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1342.83,-92.1642 1349.52,-83.9508 1339.17,-86.1979 1342.83,-92.1642\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE2\u0026#45;\u0026gt;F2006091120CE4 --\u003e\n\u003cg id\u003d\"edge27\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091119CE2\u0026#45;\u0026gt;F2006091120CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1390.53,-83.9844C1402.38,-91.2552 1417.7,-100.656 1430.84,-108.721\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1429.17,-111.802 1439.52,-114.049 1432.83,-105.836 1429.17,-111.802\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091120CE5 --\u003e\n\u003cg id\u003d\"node32\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091120CE5\u003c/title\u003e\n\u003cg id\u003d\"a_node32\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091120CE5\u0026#10;centerLat \u003d 12.6034474373\u0026#10;centerLon \u003d \u0026#45;0.145502492785\u0026#10;area \u003d 238.0\u0026#10;minTemp \u003d 213.0\u0026#10;minAreaTemp \u003d 215.0\u0026#10;minTempArea \u003d 21.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 12.2032270432\u0026#10;latMax \u003d 13.0036678314\u0026#10;lonMin \u003d \u0026#45;0.527474999428\u0026#10;lonMax \u003d 0.236470013857\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d D\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1460\" cy\u003d\"-72\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE2\u0026#45;\u0026gt;F2006091120CE5 --\u003e\n\u003cg id\u003d\"edge26\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091119CE2\u0026#45;\u0026gt;F2006091120CE5\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1397.4,-72C1405.39,-72 1414.31,-72 1422.82,-72\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1422.92,-75.5001 1432.92,-72 1422.92,-68.5001 1422.92,-75.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE10 --\u003e\n\u003cg id\u003d\"node31\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091115CE10\u003c/title\u003e\n\u003cg id\u003d\"a_node31\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091115CE10\u0026#10;centerLat \u003d 13.4220805168\u0026#10;centerLon \u003d 0.691199183464\u0026#10;area \u003d 49.0\u0026#10;minTemp \u003d 200.0\u0026#10;minAreaTemp \u003d 209.0\u0026#10;minTempArea \u003d 16.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.2947378159\u0026#10;latMax \u003d 13.5494232178\u0026#10;lonMin \u003d 0.56387501955\u0026#10;lonMax \u003d 0.818523347378\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1010\" cy\u003d\"-18\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091115CE10\u0026#45;\u0026gt;F2006091116CE4 --\u003e\n\u003cg id\u003d\"edge25\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091115CE10\u0026#45;\u0026gt;F2006091116CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1030.53,-29.9844C1042.38,-37.2552 1057.7,-46.6562 1070.84,-54.7215\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1069.17,-57.8021 1079.52,-60.0492 1072.83,-51.8358 1069.17,-57.8021\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE13 --\u003e\n\u003cg id\u003d\"node33\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091111CE13\u003c/title\u003e\n\u003cg id\u003d\"a_node33\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091111CE13\u0026#10;centerLat \u003d 14.6045503616\u0026#10;centerLon \u003d \u0026#45;0.800312519073\u0026#10;area \u003d 33.0\u0026#10;minTemp \u003d 213.0\u0026#10;minAreaTemp \u003d 222.0\u0026#10;minTempArea \u003d 19.0\u0026#10;maxTemp \u003d 239.0\u0026#10;latMin \u003d 14.4953994751\u0026#10;latMax \u003d 14.7137012482\u0026#10;lonMin \u003d \u0026#45;0.927636682987\u0026#10;lonMax \u003d \u0026#45;0.67298835516\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"338.5\" cy\u003d\"-32\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE13\u0026#45;\u0026gt;F2006091112CE13 --\u003e\n\u003cg id\u003d\"edge28\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091111CE13\u0026#45;\u0026gt;F2006091112CE13\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M365.712,-32C435.072,-32 623.513,-32 702.934,-32\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"702.951,-35.5001 712.951,-32 702.951,-28.5001 702.951,-35.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE12 --\u003e\n\u003cg id\u003d\"node34\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091111CE12\u003c/title\u003e\n\u003cg id\u003d\"a_node34\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091111CE12\u0026#10;centerLat \u003d 14.4044399261\u0026#10;centerLon \u003d \u0026#45;1.3823658824\u0026#10;area \u003d 12.0\u0026#10;minTemp \u003d 214.0\u0026#10;minAreaTemp \u003d 240.0\u0026#10;minTempArea \u003d 12.0\u0026#10;maxTemp \u003d 240.0\u0026#10;latMin \u003d 14.349864006\u0026#10;latMax \u003d 14.4590158463\u0026#10;lonMin \u003d \u0026#45;1.43693339825\u0026#10;lonMax \u003d \u0026#45;1.32779836655\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"338.5\" cy\u003d\"-86\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE12\u0026#45;\u0026gt;F2006091112CE12 --\u003e\n\u003cg id\u003d\"edge29\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091111CE12\u0026#45;\u0026gt;F2006091112CE12\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M365.712,-86C435.072,-86 623.513,-86 702.934,-86\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"702.951,-89.5001 712.951,-86 702.951,-82.5001 702.951,-89.5001\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE14 --\u003e\n\u003cg id\u003d\"node35\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE14\u003c/title\u003e\n\u003cg id\u003d\"a_node35\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE14\u0026#10;centerLat \u003d 14.7137012482\u0026#10;centerLon \u003d \u0026#45;1.87347340584\u0026#10;area \u003d 43.0\u0026#10;minTemp \u003d 213.0\u0026#10;minAreaTemp \u003d 221.0\u0026#10;minTempArea \u003d 20.0\u0026#10;maxTemp \u003d 240.0\u0026#10;latMin \u003d 14.6045503616\u0026#10;latMax \u003d 14.8228521347\u0026#10;lonMin \u003d \u0026#45;2.0553650856\u0026#10;lonMax \u003d \u0026#45;1.69158172607\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-248\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE14\u0026#45;\u0026gt;F2006091113CE17 --\u003e\n\u003cg id\u003d\"edge32\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE14\u0026#45;\u0026gt;F2006091113CE17\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M762.753,-237.865C773.409,-232.9 786.429,-226.834 798.096,-221.398\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"799.911,-224.414 807.497,-217.018 796.955,-218.069 799.911,-224.414\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE15 --\u003e\n\u003cg id\u003d\"node36\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091112CE15\u003c/title\u003e\n\u003cg id\u003d\"a_node36\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091112CE15\u0026#10;centerLat \u003d 14.9865789413\u0026#10;centerLon \u003d \u0026#45;2.25544595718\u0026#10;area \u003d 129.0\u0026#10;minTemp \u003d 202.0\u0026#10;minAreaTemp \u003d 205.0\u0026#10;minTempArea \u003d 23.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 14.750084877\u0026#10;latMax \u003d 15.2230730057\u0026#10;lonMin \u003d \u0026#45;2.4919052124\u0026#10;lonMax \u003d \u0026#45;2.01898670197\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"740\" cy\u003d\"-194\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091112CE15\u0026#45;\u0026gt;F2006091113CE17 --\u003e\n\u003cg id\u003d\"edge34\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091112CE15\u0026#45;\u0026gt;F2006091113CE17\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M766.453,-197.76C774.862,-199.002 784.377,-200.408 793.403,-201.741\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"792.895,-205.204 803.299,-203.203 793.918,-198.279 792.895,-205.204\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE15 --\u003e\n\u003cg id\u003d\"node38\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091116CE15\u003c/title\u003e\n\u003cg id\u003d\"a_node38\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091116CE15\u0026#10;centerLat \u003d 16.0235137939\u0026#10;centerLon \u003d \u0026#45;2.12812173367\u0026#10;area \u003d 31.0\u0026#10;minTemp \u003d 205.0\u0026#10;minAreaTemp \u003d 212.0\u0026#10;minTempArea \u003d 17.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 15.9507465363\u0026#10;latMax \u003d 16.0962810516\u0026#10;lonMin \u003d \u0026#45;2.23725676537\u0026#10;lonMax \u003d \u0026#45;2.01898670197\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1100\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091116CE15\u0026#45;\u0026gt;F2006091117CE4 --\u003e\n\u003cg id\u003d\"edge37\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091116CE15\u0026#45;\u0026gt;F2006091117CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1127.4,-126C1135.39,-126 1144.31,-126 1152.82,-126\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1152.92,-129.5 1162.92,-126 1152.92,-122.5 1152.92,-129.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE15 --\u003e\n\u003cg id\u003d\"node39\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091119CE15\u003c/title\u003e\n\u003cg id\u003d\"a_node39\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091119CE15\u0026#10;centerLat \u003d 14.3498644829\u0026#10;centerLon \u003d \u0026#45;5.87509036064\u0026#10;area \u003d 34.0\u0026#10;minTemp \u003d 205.0\u0026#10;minAreaTemp \u003d 213.0\u0026#10;minTempArea \u003d 18.0\u0026#10;maxTemp \u003d 239.0\u0026#10;latMin \u003d 14.2407131195\u0026#10;latMax \u003d 14.4590158463\u0026#10;lonMin \u003d \u0026#45;5.98422527313\u0026#10;lonMax \u003d \u0026#45;5.76595544815\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d M\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"1370\" cy\u003d\"-126\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091119CE15\u0026#45;\u0026gt;F2006091120CE4 --\u003e\n\u003cg id\u003d\"edge38\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091119CE15\u0026#45;\u0026gt;F2006091120CE4\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M1397.4,-126C1405.39,-126 1414.31,-126 1422.82,-126\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"1422.92,-129.5 1432.92,-126 1422.92,-122.5 1422.92,-129.5\"/\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE8 --\u003e\n\u003cg id\u003d\"node42\" class\u003d\"node\"\u003e\u003ctitle\u003eF2006091111CE8\u003c/title\u003e\n\u003cg id\u003d\"a_node42\"\u003e\u003ca onclick\u003d\"return false;\" xlink:title\u003d\"nodeID \u003d F2006091111CE8\u0026#10;centerLat \u003d 13.5312314034\u0026#10;centerLon \u003d \u0026#45;1.00039336085\u0026#10;area \u003d 34.0\u0026#10;minTemp \u003d 214.0\u0026#10;minAreaTemp \u003d 225.0\u0026#10;minTempArea \u003d 17.0\u0026#10;maxTemp \u003d 241.0\u0026#10;latMin \u003d 13.4402723312\u0026#10;latMax \u003d 13.6221904755\u0026#10;lonMin \u003d \u0026#45;1.14590668678\u0026#10;lonMax \u003d \u0026#45;0.854880034924\u0026#10;lightningData \u003d none\u0026#10;devStage \u003d I\u0026#10;\"\u003e\n\u003cellipse fill\u003d\"none\" stroke\u003d\"black\" cx\u003d\"338.5\" cy\u003d\"-140\" rx\u003d\"27\" ry\u003d\"18\"/\u003e\n\u003c/a\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c!-- F2006091111CE8\u0026#45;\u0026gt;F2006091112CE11 --\u003e\n\u003cg id\u003d\"edge43\" class\u003d\"edge\"\u003e\u003ctitle\u003eF2006091111CE8\u0026#45;\u0026gt;F2006091112CE11\u003c/title\u003e\n\u003cpath fill\u003d\"none\" stroke\u003d\"black\" d\u003d\"M365.712,-140C435.072,-140 623.513,-140 702.934,-140\"/\u003e\n\u003cpolygon fill\u003d\"black\" stroke\u003d\"black\" points\u003d\"702.951,-143.5 712.951,-140 702.951,-136.5 702.951,-143.5\"/\u003e\n\u003c/g\u003e\n\u003cg id\u003d\"node43\" class\u003d\"node\"\u003e\u003ctitle\u003e\u003c/title\u003e\n\u003cpolygon fill\u003d\"none\" stroke\u003d\"white\" points\u003d\"677,-290 5.68434e-14,-290 5.68434e-14,-176 677,-176 677,-290\"/\u003e\n\u003cimage xlink:href\u003d\"data:image/png;base64,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TZs29fq6L7/8snPebt26adeuXc7nJk6cqKVLl0qS26mVxddW0hxFvvnmG40YMUJxcXEKDw9X165d9fbbb7v1ycvL0+zZs5WUlKTw8HDFx8fr5ptv1ocffujsc/r0aU2cOFENGzZUWFiYEhMTNWzYsAo93TMzM1PTpk1Tw4YNVaNGDSUlJXlcb/nNN9/I4XBo6dKlevHFF9W0aVNFRUXp9ttv1+nTp2WM0eOPP64GDRooMjJSd911l86fP+82R926dTVy5Eht27ZN7du3V3h4uNq1a6ctW7YEtKYlS5Zo4cKFatasmcLDw/Xdd98pJydHjz32mDp37qyaNWsqOjpaffr00T/+8Q+38Y0aNZJlWfr973/vPOYLFiyQJPXo0cPrP1YUv66vpHVIUk5Ojh599FE1b95cYWFhatKkiR577DHl5uaWemx8vdbSpUu1dOlSNW/e3Pnt5t69e0udTyossm655RZFRESocePGWrBggc/C+O2331bPnj0VFRWlmJgYDRs2TN9++61Hv9dee02tW7dWeHi4OnTooK1btwZ8/eMXX3yhfv36qVatWkpLS1NiYmK55wKA6o5vCAFc886ePaszZ87IGKP09HQtWrRIP//8s8aOHevR909/+pN++eUX/e53v1ONGjUUGxur/Px8j35FHzrbt2+vZ599VllZWZo8ebLq16/v9XqodevW6cKFC5oyZYosy9L8+fP1L//yL/ruu+8UFBSkKVOm6OTJk/rggw+0bt06rx+SS5tDkvbt26devXqpQYMGevjhhxUZGakNGzZo2LBh2rRpk+68805J0hNPPKFnn31W9957r7p27apz585p165d2r17t/r16ydJGj58uA4cOKD7779fjRs3Vnp6ut5//30dO3ZMjRo1CuiYSNKFCxfUq1cvZWZmasqUKapfv7527NihBx98UBkZGZo7d65b/9TUVBUUFGjWrFlKT0/XwoULNXr0aHXq1Em7du3SI488ogMHDmjJkiVKSEjQ4sWLnWMty9JXX32lsWPH6r777lNsbKxSU1M1fPhw/fd//7d69epVrjUtW7ZM+fn5mjp1qoKDg1WzZk2dOXNGa9asUUpKiqZMmaLs7Gylpqaqf//+2r17t1q1aqXExES99NJLmj59ulJSUjR48GBJUseOHZ3r9cbX9Xbe1lFQUKBBgwZp9+7dmjJlilq2bKk9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/Px8M2PGDJOQkGCCgoKcP0FRljmMMeb77783EyZMMImJiaZGjRqmYcOGZujQoWbTpk3OPnPnzjU9evQwsbGxJjIy0iQnJ5tnn33W+XMJZ86cMdOnTzfJyckmOjra1KpVy9x4443mr3/9q894ezN48GDTrFkzn8+fP3/e/Od//qdp0aKFCQsLMwkJCeaWW24xixYtcv6UxNdff20cDodZsmSJ29jt27d7/OyGMcYsX77cOBwOs2/fPmdb3bp1zV133WW2bdtm2rVrZ8LCwky7du3M22+/XaFrMsaYgoIC8/TTT5vGjRubiIgI07VrV/P++++blJQUt9wwxpi///3vpnPnziYsLMw4HA63n6B49dVXTbNmzUxYWJjp0qWLSUtL85ijpHUYY0xubq6ZN2+eadOmjQkLCzPx8fGme/fuZt68eebnn3/2OqaIv6+Vk5NjHA6HWbBgQYnzGWPM//3f/5lbbrnFhIeHm0aNGpkFCxaYZcuWuf3sRJEPP/zQ3HbbbSYmJsZERkaapKQkc88995i9e/e69Vu3bp1p1aqVCQsLM+3btzfbtm0zgwcPNp06dSp1PcX3t06dOh7tubm55o477jAOh8O8+OKLZZoTAK4GljEVdBU4AEAdO3ZUnTp19O6771b1UuCiXr16uvnmmz1OT8S1qXXr1kpKStLmzZureikAUO1xDSEAlENeXp7H9U1paWnau3dvtbiJB2AHeXl5HqeGbt++Xd988w3vQwDwE9cQAkA5nDhxQrfeeqvGjBmjxMREHThwQCtWrFBiYqJ+97vfVfXyAFs4fPiwhg0bptGjR6tevXrat2+fVqxYocaNG2vy5MmSCm8GdPnyZZ9zBAcHKy4u7kotGQCqHQpCACiHWrVqqUuXLlq1apV++uknRUZGasiQIZo3b57X305D1bIsK+Cf9UD1U7t2bd1www1auXKlMjIydN1112n48OGaN2+eoqOjJRXetfTTTz/1OUerVq20f//+K7VkAKh2uIYQAABcsz7//HO3n+8oLjIyUt27d7+CKwKA6oWCEAAAAABsipvKAAAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATVEQAgAAAIBNURACAAAAgE1REAIAAACATf0//KfL6L15iYMAAAAASUVORK5CYII\u003d\" width\u003d\"677px\" height\u003d\"112.833px\" preserveAspectRatio\u003d\"xMinYMin meet\" x\u003d\"0\" y\u003d\"-289.417\"/\u003e\n\u003c/g\u003e\n\u003c/g\u003e\n\u003c/svg\u003e\n\n"
+      },
+      "dateCreated": "Feb 7, 2017 5:48:06 AM",
+      "dateStarted": "Feb 7, 2017 10:50:43 AM",
+      "dateFinished": "Feb 7, 2017 10:50:44 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "",
+      "dateUpdated": "Feb 9, 2017 12:30:34 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1486672223837_1812173836",
+      "id": "20170209-123023_1343993141",
+      "dateCreated": "Feb 9, 2017 12:30:23 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "/user/MCS",
+  "id": "2C7G32A2R",
+  "angularObjects": {
+    "2BVURA85U:shared_process": [],
+    "2BU2MNEMG:shared_process": [],
+    "2BU9P6JH6:shared_process": [],
+    "2BT8TG21U:shared_process": [],
+    "2BUXT3NC5:shared_process": [],
+    "2BTZM67CR:shared_process": [],
+    "2BTN87W53:shared_process": [],
+    "2BUCZMUX7:shared_process": [],
+    "2BUSBW3MB:shared_process": [],
+    "2BUXWV6HB:shared_process": [],
+    "2BT9TFHBF:shared_process": [],
+    "2BU936JFK:shared_process": [],
+    "2BTFV92B8:shared_process": [],
+    "2BT3ZFUU9:shared_process": [],
+    "2BW6TQVCA:shared_process": [],
+    "2BUFFDS2F:shared_process": [],
+    "2BUDKPFK6:shared_process": [],
+    "2BVQCFMYJ:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}

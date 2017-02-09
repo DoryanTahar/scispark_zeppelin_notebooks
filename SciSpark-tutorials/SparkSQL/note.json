@@ -1,0 +1,341 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n#Using SparkSQL and DataFrames with Spark\n##Overview\nThe purpose of this notebook is to demonstrate accessing the [WWLLN](http://wwlln.net/) data. \nThe WWLN files are comma separated files with six columns of data in the following format: \n* date in the format yyyy/MM/DD;\n* time in microseconds to 6 decimal places in the 24hr format HH:MM:ss.microseconds\n* latitude of the lightning strike to 4 decimal places. -ve values for the Southern Hemisphere and +ve values for the Northern Hemisphere; \n* longitude of the lightning strike to 4 decimal places. -ve values for the Western Hemisphere and +ve values for the Eastern Hemisphere;\n* residual fit error in microseconds\n* the number of antennas that detected the lightning strike\n\nIt is assumed the WWLLN files are all on the HDFS in one folder.\n\nAs a usecase, including lighnting data into the find MCS algorithm assists with indicating the various development stages of the MCS and infers the severity of individual nodes. \n\nThe WWLLN is chosen over satellite-borne sensors data such as the TRMM LIS because of the global consistent coverage and the distinct detection for cloud-to-ground lightning, which can be used to proxy the severity of the system.\n\n##References\n1. Takahashi, T. (1978a), Riming electrification as a charge generation mechanism in thunderstorms, J. Atmos. Sci., 35, 1536–1548.\n2. Virts, K. S., Wallace, J. M., Hutchins, M. L., \u0026 Holzworth, R. H. (2013). Highlights of a new ground-based, hourly global lightning climatology. Bulletin of the American Meteorological Society, 94(9), 1381-1391.",
+      "dateUpdated": "Nov 14, 2016 7:08:54 AM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478619115262_409676614",
+      "id": "20161108-073155_646241386",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "\u003ch1\u003eUsing SparkSQL and DataFrames with Spark\u003c/h1\u003e\n\u003ch2\u003eOverview\u003c/h2\u003e\n\u003cp\u003eThe purpose of this notebook is to demonstrate accessing the \u003ca href\u003d\"http://wwlln.net/\"\u003eWWLLN\u003c/a\u003e data.\n\u003cbr  /\u003eThe WWLN files are comma separated files with six columns of data in the following format:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003edate in the format yyyy/MM/DD;\u003c/li\u003e\n\u003cli\u003etime in microseconds to 6 decimal places in the 24hr format HH:MM:ss.microseconds\u003c/li\u003e\n\u003cli\u003elatitude of the lightning strike to 4 decimal places. -ve values for the Southern Hemisphere and +ve values for the Northern Hemisphere;\u003c/li\u003e\n\u003cli\u003elongitude of the lightning strike to 4 decimal places. -ve values for the Western Hemisphere and +ve values for the Eastern Hemisphere;\u003c/li\u003e\n\u003cli\u003eresidual fit error in microseconds\u003c/li\u003e\n\u003cli\u003ethe number of antennas that detected the lightning strike\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eIt is assumed the WWLLN files are all on the HDFS in one folder.\u003c/p\u003e\n\u003cp\u003eAs a usecase, including lighnting data into the find MCS algorithm assists with indicating the various development stages of the MCS and infers the severity of individual nodes.\u003c/p\u003e\n\u003cp\u003eThe WWLLN is chosen over satellite-borne sensors data such as the TRMM LIS because of the global consistent coverage and the distinct detection for cloud-to-ground lightning, which can be used to proxy the severity of the system.\u003c/p\u003e\n\u003ch2\u003eReferences\u003c/h2\u003e\n\u003col\u003e\n\u003cli\u003eTakahashi, T. (1978a), Riming electrification as a charge generation mechanism in thunderstorms, J. Atmos. Sci., 35, 1536–1548.\u003c/li\u003e\n\u003cli\u003eVirts, K. S., Wallace, J. M., Hutchins, M. L., \u0026amp; Holzworth, R. H. (2013). Highlights of a new ground-based, hourly global lightning climatology. Bulletin of the American Meteorological Society, 94(9), 1381-1391.\u003c/li\u003e\n\u003c/ol\u003e\n"
+      },
+      "dateCreated": "Nov 8, 2016 7:31:55 AM",
+      "dateStarted": "Nov 14, 2016 7:08:51 AM",
+      "dateFinished": "Nov 14, 2016 7:08:51 AM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Import libraries",
+      "text": "// this is used to implicitly convert an RDD to a DataFrame.\nimport sqlContext.implicits._\nimport org.apache.spark.rdd.RDD\nimport org.apache.spark.sql.functions._\n\n// Import Spark SQL data types and Row.\nimport org.apache.spark.sql.{DataFrame, Dataset, Row} //_\n\n// for utility functions \nimport java.sql.Timestamp\nimport java.text.SimpleDateFormat\n\n// import SciSpark dependencies\n// import org.dia.core.{SciSparkContext}\n// import org.dia.algorithms.mcs.WWLNUtils\n",
+      "dateUpdated": "Nov 16, 2016 4:23:00 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478620429179_1220014684",
+      "id": "20161108-075349_268569198",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nimport sqlContext.implicits._\n\nimport org.apache.spark.rdd.RDD\n\nimport org.apache.spark.sql.functions._\n\nimport org.apache.spark.sql.{DataFrame, Dataset, Row}\n\nimport java.sql.Timestamp\n\nimport java.text.SimpleDateFormat\n"
+      },
+      "dateCreated": "Nov 8, 2016 7:53:49 AM",
+      "dateStarted": "Nov 16, 2016 4:23:00 PM",
+      "dateFinished": "Nov 16, 2016 4:23:02 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Place All Files Into DF With Schema",
+      "text": "// Function to create a column of Date Time in SimpleDateFormat(\"yyyy/MM/DD kk:mm:ss\") from the first two columns\n// of the WWLLN data\n\ncase class WWLLN (lDateTime:String, lat:Float, lon:Float, resFit:Float, numStations:Integer)\n\ndef getWWLLNtimeStr(datePart:String, timePart:String): String \u003d {\n    if (datePart.toString() \u003d\u003d \"\"){\n        return null\n    }else {\n        return datePart + \" \" + timePart.split(\u0027.\u0027).dropRight(1).mkString(\"\")\n    }\n }\n\ndef getWWLLNData(linesRDD:RDD[String]): DataFrame \u003d {\n  \tval WWLLNdataStrs \u003d linesRDD.filter(lines \u003d\u003e lines.split(\",\").length !\u003d 1)\n  \tval wwllnRDD \u003d linesRDD.filter(lines \u003d\u003e lines.split(\",\").length !\u003d 1).map(line \u003d\u003e line.split(\",\")).map(p \u003d\u003e \n  \t  WWLLN(getWWLLNtimeStr(p(0).trim, p(1).trim), p(2).trim.toFloat, p(3).trim.toFloat, p(4).trim.toFloat, p(5).trim.toInt))\n  \tval wwllnDF \u003d wwllnRDD.toDF()\n  \twwllnDF\n  }\n\n// open the (multiple files) and place the data in a dataframe \nval partitions \u003d 4\nval WWLLNpath \u003d \"/data/WWLLN/\"\nval WWLLNdataStrs \u003d sc.textFile(WWLLNpath, partitions)\nval wwllnDF \u003d getWWLLNData(WWLLNdataStrs)\n\n// broadcast wwllnDF \nval wwllnDFbc \u003d sc.broadcast(wwllnDF)",
+      "dateUpdated": "Nov 16, 2016 4:23:04 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478730378498_-1723459036",
+      "id": "20161109-142618_761536052",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\ndefined class WWLLN\n\ngetWWLLNtimeStr: (datePart: String, timePart: String)String\n\ngetWWLLNData: (linesRDD: org.apache.spark.rdd.RDD[String])org.apache.spark.sql.DataFrame\n\npartitions: Int \u003d 4\n\nWWLLNpath: String \u003d /data/WWLLN/\n\nWWLLNdataStrs: org.apache.spark.rdd.RDD[String] \u003d /data/WWLLN/ MapPartitionsRDD[693] at textFile at \u003cconsole\u003e:48\n\nwwllnDF: org.apache.spark.sql.DataFrame \u003d [lDateTime: string, lat: float ... 3 more fields]\n\nwwllnDFbc: org.apache.spark.broadcast.Broadcast[org.apache.spark.sql.DataFrame] \u003d Broadcast(149)\n"
+      },
+      "dateCreated": "Nov 9, 2016 2:26:18 PM",
+      "dateStarted": "Nov 16, 2016 4:23:04 PM",
+      "dateFinished": "Nov 16, 2016 4:23:06 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val x \u003d wwllnDF.take(1).mkString(\"\")\nval y \u003d \"[2006/09/01 00:00:00,3.8656,118.3962,12.4,5]\"\nprintln(x)\nx \u003d\u003d y",
+      "dateUpdated": "Nov 16, 2016 4:25:31 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1479342098755_2146546194",
+      "id": "20161116-162138_1730684284",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nx: String \u003d [2006/09/01 00:00:00,3.8656,118.3962,12.4,5]\n\ny: String \u003d [2006/09/01 00:00:00,3.8656,118.3962,12.4,5]\n[2006/09/01 00:00:00,3.8656,118.3962,12.4,5]\n\nres47: Boolean \u003d true\n"
+      },
+      "dateCreated": "Nov 16, 2016 4:21:38 PM",
+      "dateStarted": "Nov 16, 2016 4:25:31 PM",
+      "dateFinished": "Nov 16, 2016 4:25:32 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "// some checks that everything went as expected\nWWLLNdataStrs.count()\nwwllnDF.printSchema()\nwwllnDF.count\nwwllnDF.show(10)\nwwllnDF.select(\"lDateTime\").distinct.count",
+      "dateUpdated": "Nov 16, 2016 4:23:27 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478629690318_1731502201",
+      "id": "20161108-102810_417966446",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\nres30: Long \u003d 4270980\nroot\n |-- lDateTime: string (nullable \u003d true)\n |-- lat: float (nullable \u003d false)\n |-- lon: float (nullable \u003d false)\n |-- resFit: float (nullable \u003d false)\n |-- numStations: integer (nullable \u003d true)\n\n\nres32: Long \u003d 4270979\n+-------------------+-------+--------+------+-----------+\n|          lDateTime|    lat|     lon|resFit|numStations|\n+-------------------+-------+--------+------+-----------+\n|2006/09/01 00:00:00| 3.8656|118.3962|  12.4|          5|\n|2006/09/01 00:00:01|32.5131|-75.7439|  23.2|         10|\n|2006/09/01 00:00:02| 4.4374|-62.7566|   9.8|          6|\n|2006/09/01 00:00:02|25.4424|-77.4865|  17.6|          5|\n|2006/09/01 00:00:03|23.3132|  95.633|   8.1|          6|\n|2006/09/01 00:00:04| 7.0395|-74.8141|  20.8|          5|\n|2006/09/01 00:00:04|19.5916|-89.3875|  21.1|          6|\n|2006/09/01 00:00:07|40.2996|157.9715|   6.3|          5|\n|2006/09/01 00:00:08|21.8204|122.2859|  18.9|          5|\n|2006/09/01 00:00:10|19.6393|121.8139|  16.6|          5|\n+-------------------+-------+--------+------+-----------+\nonly showing top 10 rows\n\n\nres34: Long \u003d 2005302\n"
+      },
+      "dateCreated": "Nov 8, 2016 10:28:10 AM",
+      "dateStarted": "Nov 16, 2016 4:23:27 PM",
+      "dateFinished": "Nov 16, 2016 4:23:34 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Set up query",
+      "text": "wwllnDF.filter(\"(lat \u003e 5.0 and lat \u003c 5.5) and (lon \u003e 1.0 and lon \u003c 1.5)\").show()\nval res \u003d wwllnDF.filter(\"(lat \u003e 5.0 and lat \u003c 5.5) and (lon \u003e 1.0 and lon \u003c 1.5)\")\n\nval res1 \u003d wwllnDF.filter(\"(lat \u003e 5.0 and lat \u003c 5.5) and (lon \u003e 1.0 and lon \u003c 1.5) and (lDateTime \u003d\u003d \u00272006/09/12 13:12:35\u0027)\")",
+      "dateUpdated": "Nov 16, 2016 4:23:40 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478706090487_1696487670",
+      "id": "20161109-074130_52797278",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "+-------------------+------+------+------+-----------+\n|          lDateTime|   lat|   lon|resFit|numStations|\n+-------------------+------+------+------+-----------+\n|2006/09/12 13:12:35|5.3667|1.0741|  16.2|          6|\n|2006/09/17 01:33:05|5.4027|1.0265|  28.6|          5|\n+-------------------+------+------+------+-----------+\n\n\nres: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [lDateTime: string, lat: float ... 3 more fields]\n\nres1: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [lDateTime: string, lat: float ... 3 more fields]\n"
+      },
+      "dateCreated": "Nov 9, 2016 7:41:30 AM",
+      "dateStarted": "Nov 16, 2016 4:23:40 PM",
+      "dateFinished": "Nov 16, 2016 4:23:43 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Query using passed parameters",
+      "text": "val currTimeDate \u003d \"2006/09/12 13:12:35\"\nval latMin \u003d 5.0\nval latMax \u003d 5.5\nval lonMin \u003d 1.0\nval lonMax \u003d 1.5\n\nval fCmd \u003d \"(lat \u003e \"+latMin+\" and lat \u003c \" +latMax + \") and (lon \u003e \"+lonMin+\" and lon \u003c \"+lonMax+\") and (lDateTime \u003d\u003d \u0027\"+currTimeDate+\"\u0027)\"\n \nval res2 \u003d wwllnDF.filter(fCmd)\n\n// Putting this in a function to create query and check for lightning strikes\n// accepts time as string and lat-lon limits as doubles (can be taken from MCSNode object) and broadcasted WWLNdf\n\ndef checkForLightning(WWLLN: DataFrame,\n                      thisTimeDate:String, \n                      minLat: Double,\n                      maxLat: Double,\n                      minLon: Double,\n                      maxLon: Double): Dataset[org.apache.spark.sql.Row] \u003d {\n    \n    val filterCmd \u003d \"(lat \u003e \"+ minLat +\" and lat \u003c \" + maxLat + \") and (lon \u003e \"+ minLon +\" and lon \u003c \"+ maxLon+\") and (lDateTime \u003d\u003d \u0027\"+thisTimeDate+\"\u0027)\" \n    return WWLLN.filter(filterCmd)\n}\n\nval res3 \u003d checkForLightning(wwllnDFbc.value, currTimeDate, latMin, latMax, lonMin, lonMax)\nval currTimeDate \u003d \"2006/01/12 13:12:35\"\nval res4 \u003d checkForLightning(wwllnDFbc.value, currTimeDate, latMin, latMax, lonMin, lonMax)",
+      "dateUpdated": "Nov 16, 2016 4:24:08 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478706453997_-272350717",
+      "id": "20161109-074733_960233316",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\ncurrTimeDate: String \u003d 2006/09/12 13:12:35\n\nlatMin: Double \u003d 5.0\n\nlatMax: Double \u003d 5.5\n\nlonMin: Double \u003d 1.0\n\nlonMax: Double \u003d 1.5\n\nfCmd: String \u003d (lat \u003e 5.0 and lat \u003c 5.5) and (lon \u003e 1.0 and lon \u003c 1.5) and (lDateTime \u003d\u003d \u00272006/09/12 13:12:35\u0027)\n\nres2: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [lDateTime: string, lat: float ... 3 more fields]\n\ncheckForLightning: (WWLLN: org.apache.spark.sql.DataFrame, thisTimeDate: String, minLat: Double, maxLat: Double, minLon: Double, maxLon: Double)org.apache.spark.sql.Dataset[org.apache.spark.sql.Row]\n\nres3: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [lDateTime: string, lat: float ... 3 more fields]\n\ncurrTimeDate: String \u003d 2006/01/12 13:12:35\n\nres4: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] \u003d [lDateTime: string, lat: float ... 3 more fields]\n"
+      },
+      "dateCreated": "Nov 9, 2016 7:47:33 AM",
+      "dateStarted": "Nov 16, 2016 4:24:08 PM",
+      "dateFinished": "Nov 16, 2016 4:24:09 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Extract data from Dataset[org.apache.spark.sql.Row]",
+      "text": "// To update the MCSNodeMap, the lat and lon of the lightning strikes associated with a node would be needed,\n// hence function that accepts a org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] as input\n// and returns an Array of tuples (lat,lon) for the lightning strikes in that node \n// is needed\n\ndef getLightningLocs(result:Dataset[Row]): Array[(Float, Float)] \u003d {\n    return result.rdd.map( r \u003d\u003e (r(1).asInstanceOf[Float], r(2).asInstanceOf[Float])).collect()\n}\n\nval t \u003d getLightningLocs(res)\nval t2 \u003d getLightningLocs(res2)\nval t3 \u003d getLightningLocs(res3) \nval t4 \u003d getLightningLocs(res4) ",
+      "dateUpdated": "Nov 16, 2016 4:24:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478708490915_1343120137",
+      "id": "20161109-082130_38231311",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "\ngetLightningLocs: (result: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row])Array[(Float, Float)]\n\nt: Array[(Float, Float)] \u003d Array((5.3667,1.0741), (5.4027,1.0265))\n\nt2: Array[(Float, Float)] \u003d Array((5.3667,1.0741))\n\nt3: Array[(Float, Float)] \u003d Array((5.3667,1.0741))\n\nt4: Array[(Float, Float)] \u003d Array()\n"
+      },
+      "dateCreated": "Nov 9, 2016 8:21:30 AM",
+      "dateStarted": "Nov 16, 2016 4:24:15 PM",
+      "dateFinished": "Nov 16, 2016 4:24:21 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "",
+      "dateUpdated": "Nov 9, 2016 2:17:35 PM",
+      "config": {
+        "colWidth": 12.0,
+        "graph": {
+          "mode": "table",
+          "height": 300.0,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1478729835586_-193091020",
+      "id": "20161109-141715_1441854184",
+      "dateCreated": "Nov 9, 2016 2:17:15 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "/user/completed/accessWWLLN",
+  "id": "2BZF3RWVV",
+  "angularObjects": {
+    "2BVURA85U:shared_process": [],
+    "2BU2MNEMG:shared_process": [],
+    "2BU9P6JH6:shared_process": [],
+    "2BT8TG21U:shared_process": [],
+    "2BUXT3NC5:shared_process": [],
+    "2BTZM67CR:shared_process": [],
+    "2BTN87W53:shared_process": [],
+    "2BUCZMUX7:shared_process": [],
+    "2BUSBW3MB:shared_process": [],
+    "2BUXWV6HB:shared_process": [],
+    "2BT9TFHBF:shared_process": [],
+    "2BU936JFK:shared_process": [],
+    "2BTFV92B8:shared_process": [],
+    "2BT3ZFUU9:shared_process": [],
+    "2BW6TQVCA:shared_process": [],
+    "2BUFFDS2F:shared_process": [],
+    "2BUDKPFK6:shared_process": [],
+    "2BVQCFMYJ:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}
